@@ -1,28 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿using Modbus.Device;
 using PCI.PS400;
-using System.Xml;
-using yiyi.MotionDefine;
-
-using System.IO.Ports;
-using Modbus;
-using Modbus.Device;
-using Modbus.Data;
-
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using System.Timers;
+using System;
 using System.Diagnostics;
+using System.IO.Ports;
+using System.Threading;
+using System.Xml;
 
 namespace yiyi.MotionDefine
 {
     public class TCClass
     {
-        
+
         #region 共用變數宣告
 
         static ModbusSerialMaster TCMaster;
@@ -30,12 +18,12 @@ namespace yiyi.MotionDefine
         private static SerialPort TCPort = new SerialPort();             //宣告TC通信埠
 
 
-        
+
 
 
         static int CurrentMotor;
-        
-        public static bool sendFlag=false;     //傳送旗標
+
+        public static bool sendFlag = false;     //傳送旗標
 
         public static bool sendFlag2 = false;
 
@@ -76,10 +64,10 @@ namespace yiyi.MotionDefine
             public ushort Status; //馬達狀態值
         }
         public static MOTOR_STATUS[] mStatus = new MOTOR_STATUS[10];    //馬達狀態  //10 AXIS
-        
+
         //private static System.Timers.Timer Timer1;
         //********************
-       
+
 
         private const int TC_MaxCards = 16;   //最多16 組 *4 =64軸
         //private const int Modus_MaxID = 4;     //最多4 軸
@@ -88,7 +76,7 @@ namespace yiyi.MotionDefine
         //private static Int16 m_CardNum = 0;
         //軸卡溝通結構
         private static CARD_CONFIG_SETTING[] TC_Cfg = new CARD_CONFIG_SETTING[TC_MaxCards];
-        
+
         public const int PISO_AXES = 4;
         //XML 定義
         private const string m_configureFileName = "TCConfig.xml";
@@ -162,7 +150,7 @@ namespace yiyi.MotionDefine
             }
 
         }
-       
+
         // 軸規劃參數
         public class AXIS_CONFIG_SETTING
         {
@@ -325,22 +313,22 @@ namespace yiyi.MotionDefine
         public static Int16 TC_Setup_Com(SerialPort serialPort)
         {
             Int16 nErrCode = 0;
-        
+
             TCPort = serialPort;
-          
+
             return nErrCode; ;
         }
         #endregion
 
-      
+
         #region 通信埠開啟掃瞄
         public static Int16 TC_Open_Com()
         {
-            Int16 nErrCode=0;
+            Int16 nErrCode = 0;
             String strErrMsg;
             try
             {
-                if ( 1==0 && !MotionClass.MotionDefine.simulateFlag)
+                if (1 == 0 && !MotionClass.MotionDefine.simulateFlag)
                 {
                     TC_Init();
                 }
@@ -348,11 +336,11 @@ namespace yiyi.MotionDefine
                 {
                     //1.軸卡初始化記憶空間宣告
                     TC_Init();
-                    
+
                     //2.先關閉再開啟
                     if (TCPort.IsOpen)
                         TCPort.Close();
-                   
+
                     //開啟通信埠
                     TCPort.Open();
 
@@ -556,7 +544,7 @@ namespace yiyi.MotionDefine
                     break;
                  */
                 case 0:
-                break;
+                    break;
             }
 
             if (nErrCode != ErrCode.SUCCESS_NO_ERROR)
@@ -569,24 +557,24 @@ namespace yiyi.MotionDefine
             switch (EncoderMode)
             {
                 case 0:
-                break;
-                /*
-                case 0: // 1/1 AB Phase
-                    nErrCode = Functions.TC_set_enc_cfg(nCardID, AxisNo, Param.ENCODER_MODE_AB, 0x00);
                     break;
+                    /*
+                    case 0: // 1/1 AB Phase
+                        nErrCode = Functions.TC_set_enc_cfg(nCardID, AxisNo, Param.ENCODER_MODE_AB, 0x00);
+                        break;
 
-                case 1: // 1/2 AB Phase
-                    nErrCode = Functions.TC_set_enc_cfg(nCardID, AxisNo, Param.ENCODER_MODE_AB_DIVID_2, 0x00);
-                    break;
+                    case 1: // 1/2 AB Phase
+                        nErrCode = Functions.TC_set_enc_cfg(nCardID, AxisNo, Param.ENCODER_MODE_AB_DIVID_2, 0x00);
+                        break;
 
-                case 2: // 1/4 AB Phase
-                    nErrCode = Functions.TC_set_enc_cfg(nCardID, AxisNo, Param.ENCODER_MODE_AB_DIVID_4, 0x00);
-                    break;
+                    case 2: // 1/4 AB Phase
+                        nErrCode = Functions.TC_set_enc_cfg(nCardID, AxisNo, Param.ENCODER_MODE_AB_DIVID_4, 0x00);
+                        break;
 
-                case 3: // CW/CCW
-                    nErrCode = Functions.TC_set_enc_cfg(nCardID, AxisNo, Param.ENCODER_MODE_CW_CCW, 0x00);
-                    break;
-                 */ 
+                    case 3: // CW/CCW
+                        nErrCode = Functions.TC_set_enc_cfg(nCardID, AxisNo, Param.ENCODER_MODE_CW_CCW, 0x00);
+                        break;
+                     */
 
             }
             if (nErrCode != ErrCode.SUCCESS_NO_ERROR)
@@ -599,15 +587,15 @@ namespace yiyi.MotionDefine
             switch (LimitLogic)
             {
                 case 0:
-                break;
-                /*
-                case 0:
-                    nErrCode = Functions.TC_set_limit(nCardID, AxisNo, Param.LIMIT_LOGIC_ACTIVE_LOW, Param.LIMIT_STOP_SUDDEN);
                     break;
-                case 1:
-                    nErrCode = Functions.TC_set_limit(nCardID, AxisNo, Param.LIMIT_LOGIC_ACTIVE_HIGH, Param.LIMIT_STOP_SUDDEN);
-                    break;
-                 */ 
+                    /*
+                    case 0:
+                        nErrCode = Functions.TC_set_limit(nCardID, AxisNo, Param.LIMIT_LOGIC_ACTIVE_LOW, Param.LIMIT_STOP_SUDDEN);
+                        break;
+                    case 1:
+                        nErrCode = Functions.TC_set_limit(nCardID, AxisNo, Param.LIMIT_LOGIC_ACTIVE_HIGH, Param.LIMIT_STOP_SUDDEN);
+                        break;
+                     */
             }
             if (nErrCode != ErrCode.SUCCESS_NO_ERROR)
             {
@@ -645,7 +633,7 @@ namespace yiyi.MotionDefine
                 MotionClass.WriteEventLog(strErrMsg);
                 goto Initial_Error;
             }
-            
+
             //inp 定位 模式
             if (EnableINP == true) // INP_ENABLE_FEATURE
             {
@@ -665,8 +653,8 @@ namespace yiyi.MotionDefine
                     nErrCode = Functions.TC_set_inp(nCardID, AxisNo, Param.INP_DISABLE_FEATURE, Param.INP_LOGIC_ACTIVE_HIGH);
                 */
             }
-           
-            
+
+
             if (nErrCode != ErrCode.SUCCESS_NO_ERROR)
             {
                 strErrMsg = string.Format("TC_set_inp() falied with error code : {0}", nErrCode);
@@ -682,7 +670,7 @@ namespace yiyi.MotionDefine
                 else // ALARM_LOGIC_ACTIVE_HIGH
                     nErrCode = Functions.TC_set_alarm(nCardID, AxisNo, Param.ALARM_ENABLE_FEATURE, Param.ALARM_LOGIC_ACTIVE_HIGH);
             
-                 */ 
+                 */
             }
             else  // ALARM_DISABLE_FEATURE
             {
@@ -702,10 +690,10 @@ namespace yiyi.MotionDefine
             }
 
             //濾波參數    
-            
+
 
             //中斷因子
-          
+
 
             //開 servo 致能
             //nErrCode = Functions.TC_servo_on(nCardID, AxisNo, Param.SERVO_ON, Param.SERVO_MANUAL_OFF);
@@ -716,7 +704,7 @@ namespace yiyi.MotionDefine
                 goto Initial_Error;
             }
 
-        Initial_Error:
+            Initial_Error:
             ;
             return nErrCode;
         }
@@ -728,7 +716,7 @@ namespace yiyi.MotionDefine
         public static void TC_CreateXML()
         {
             //軸卡值-->清空設定初始化
-            for (int i = 0; i <TC_MaxCards; i++)
+            for (int i = 0; i < TC_MaxCards; i++)
             {
                 //軸卡初值-->清空設定
                 ResetAxisSetting(i);
@@ -831,8 +819,8 @@ namespace yiyi.MotionDefine
             try
             {
                 //開檔  m_configureFileName = "c:\\config.xml";
-                string xmlFileName=MotionClass.MotionDefine.RootPath + "Axis\\" + m_configureFileName;
-                
+                string xmlFileName = MotionClass.MotionDefine.RootPath + "Axis\\" + m_configureFileName;
+
                 XmlTextWriter writer = new XmlTextWriter(xmlFileName, null);
 
                 writer.Formatting = Formatting.Indented; //XML格式堵明
@@ -1358,7 +1346,7 @@ namespace yiyi.MotionDefine
             TC_SaveCardIDXML(nCardID);//修改指定卡的xml資料
         }
 
-       
+
         //修改指定軸卡的xml 資料
         public static int TC_SaveCardIDXML(int nCardID)
         {
@@ -1654,7 +1642,7 @@ namespace yiyi.MotionDefine
             return;
 
 
-            byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+            byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
             if (MotionClass.MotionDefine.simulateFlag && MotionClass.MotionDefine.simulateNoModbusFlag)
             {
@@ -1669,7 +1657,7 @@ namespace yiyi.MotionDefine
             //Go Home 速度-->高速
             longData[0] = TC_Cfg[cardNum].BasicFeatures[AxisNum].HV;
             //Buffer.BlockCopy(longData, 0, uintData, 0, 4);
-           // TCMaster.WriteMultipleRegisters(slaveID, 722, uintData);
+            // TCMaster.WriteMultipleRegisters(slaveID, 722, uintData);
 
             /*
             //手動JOG速度
@@ -1693,7 +1681,7 @@ namespace yiyi.MotionDefine
             //TCMaster.WriteMultipleRegisters(slaveID, 709, uintData);
             //data2 = TCMaster.ReadHoldingRegisters(slaveID, 709, 1);
             //儲存至軸卡-系統參數
-           // TCMaster.WriteSingleCoil(slaveID, 11, true);  //
+            // TCMaster.WriteSingleCoil(slaveID, 11, true);  //
 
         }
         #endregion
@@ -1711,11 +1699,10 @@ namespace yiyi.MotionDefine
                 }
                 sendFlag = true;
 
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                TCMaster.WriteSingleCoil(slaveID, 0x0417, false);
-                TCMaster.WriteSingleCoil(slaveID, 0x0416, false);
-                TCMaster.WriteSingleCoil(slaveID, 0x042C, true);
+                TCMaster.WriteSingleRegister(slaveID, 0x201E, 9); //9: Emergency stop
+
 
                 //sendFlag = false;
 
@@ -1751,12 +1738,12 @@ namespace yiyi.MotionDefine
         public static int TC_Org_Search(Byte cardNum, UInt16 AxisNum)
         {
             int returnStatus = -99; //異常碼 -99
-     
+
             uint HSV = TC_Cfg[cardNum].BasicFeatures[AxisNum].HSV;   //回home 低速
             uint HV = TC_Cfg[cardNum].BasicFeatures[AxisNum].HV;   //回home 高速
             float A = TC_Cfg[cardNum].BasicFeatures[AxisNum].A;
             float D = TC_Cfg[cardNum].BasicFeatures[AxisNum].D;
-        
+
             return returnStatus;
         }
         #endregion
@@ -1765,7 +1752,7 @@ namespace yiyi.MotionDefine
         public static int TC_Z_Phase_Search(Byte cardNum, UInt16 AxisNum)
         {
             int returnStatus = -99; //異常碼 -99
-         
+
             return returnStatus;
         }
         #endregion
@@ -1777,7 +1764,7 @@ namespace yiyi.MotionDefine
             int returnStatus = -99; //異常碼 -9
             try
             {
-               
+
 
                 bAcc = TC_Cfg[cardNum].BasicFeatures[AxisNum].A;
                 bDec = TC_Cfg[cardNum].BasicFeatures[AxisNum].D;
@@ -1810,9 +1797,9 @@ namespace yiyi.MotionDefine
                 //}
                 sendFlag = true;
 
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                 //指定馬達NO
-               
+
                 bAcc = TC_Cfg[cardNum].BasicFeatures[AxisNum].A;
                 sendFlag = false;
                 returnStatus = ErrCode.SUCCESS_NO_ERROR; ;
@@ -1838,8 +1825,8 @@ namespace yiyi.MotionDefine
                 //    return -98;//WAIT
                 //else
                 //    sendFlag = true;
-                
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 //指定馬達NO
                 //CommInterface.DefaultMotor = slaveID;
@@ -1879,11 +1866,11 @@ namespace yiyi.MotionDefine
                 else
                     sendFlag = true;
 
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                 //指定馬達NO
                 //CommInterface.DefaultMotor = slaveID;
                 //bSpeed = uint.Parse(CommInterface.GetResponseOf("RVT"));
-          
+
                 sendFlag = false;
                 returnStatus = 0;
                 return returnStatus;
@@ -1899,7 +1886,7 @@ namespace yiyi.MotionDefine
         #endregion
 
         #region 變更自動運轉速度
-        public static int TC_Change_V_Speed(Byte cardNum, UInt16 AxisNum, uint bDriveSpeed,uint Acc, uint Dec)
+        public static int TC_Change_V_Speed(Byte cardNum, UInt16 AxisNum, uint bDriveSpeed, uint Acc, uint Dec)
         {
             int returnStatus = -99; //異常碼 -9
             try
@@ -1909,7 +1896,7 @@ namespace yiyi.MotionDefine
                 else
                     sendFlag = true;
 
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 ////指定馬達NO
                 //CommInterface.DefaultMotor = slaveID;
@@ -1941,9 +1928,9 @@ namespace yiyi.MotionDefine
             ushort sts;
             try
             {
-     
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
-                bErrorStatus =(ushort) mStatus[slaveID].Status;
+
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
+                bErrorStatus = (ushort)mStatus[slaveID].Status;
                 returnStatus = 0;
                 return returnStatus;
             }
@@ -1963,9 +1950,9 @@ namespace yiyi.MotionDefine
             int returnStatus = -3; //異常碼 -3
             try
             {
-              
 
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                 //data = TCMaster.ReadInputRegisters(slaveID, 5, 1);  //inp  
                 //bDIStatus = (ushort)data[0];
 
@@ -2002,7 +1989,7 @@ namespace yiyi.MotionDefine
                     }
                     else if (TarPosition < (axis.SLimitMinuz))
                     {
-                        returnStatus  = -1001;   //軟体負極限
+                        returnStatus = -1001;   //軟体負極限
                     }
                     else
                     {
@@ -2022,7 +2009,7 @@ namespace yiyi.MotionDefine
             int returnStatus = -99; //異常碼 -99
             try
             {
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 if (mStatus[slaveID].DRV)
                 {
@@ -2075,7 +2062,7 @@ namespace yiyi.MotionDefine
                     if (!mStatus[slaveID].PEND)
                         returnStatus = ErrCode.SUCCESS_NO_ERROR;
                 }
-                
+
                 return returnStatus;
             }
             catch (Exception ex)
@@ -2090,18 +2077,18 @@ namespace yiyi.MotionDefine
         #endregion
 
         #region 取得目前軸卡位置(Encorder_Position)
-        public static int TC_Get_Enccounter(Byte cardNum, UInt16 AxisNum, ref　int bData)
+        public static int TC_Get_Enccounter(Byte cardNum, UInt16 AxisNum, ref int bData)
         {
             int returnStatus = -99; //異常碼 -99
             byte slaveID;
             try
             {
-               
+
                 //Int16 int16Value;
                 //ushort[] data;
                 long longValue;
 
-                slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+                slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 if (MotionClass.MotionDefine.simulateFlag && MotionClass.MotionDefine.simulateNoModbusFlag)
                 {
@@ -2134,14 +2121,14 @@ namespace yiyi.MotionDefine
         #endregion
 
         #region 取得目前軸卡位置(Cmd_Position)
-        public static int TC_Get_Cmdcounter(Byte cardNum, UInt16 AxisNum, ref　int bData)
+        public static int TC_Get_Cmdcounter(Byte cardNum, UInt16 AxisNum, ref int bData)
         {
             int returnStatus = -99; //異常碼 -99
             try
             {
-               // ushort[] data;
+                // ushort[] data;
                 long longValue;
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 if (MotionClass.MotionDefine.simulateFlag && MotionClass.MotionDefine.simulateNoModbusFlag)
                 {
@@ -2157,21 +2144,21 @@ namespace yiyi.MotionDefine
                 }
                 else
                 {
-                    
+
                     longValue = mStatus[slaveID].Position;
                     bData = (int)(longValue / TC_Cfg[cardNum].AxisConfig[AxisNum].Scale);
                     returnStatus = ErrCode.SUCCESS_NO_ERROR;
                 }
                 return returnStatus;
 
-             }
-             catch (Exception ex)
-             {
-                 sendFlag = false;
-                 string strErrMsg = string.Format("TC_Get_Cmdcounter() falied with error code : {0}", ex.Message);
-                 MotionClass.WriteEventLog(strErrMsg);
-                 return returnStatus;
-             }
+            }
+            catch (Exception ex)
+            {
+                sendFlag = false;
+                string strErrMsg = string.Format("TC_Get_Cmdcounter() falied with error code : {0}", ex.Message);
+                MotionClass.WriteEventLog(strErrMsg);
+                return returnStatus;
+            }
         }
         #endregion
 
@@ -2212,7 +2199,7 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                TCMaster.WriteSingleCoil(slaveID, 0x0403, true);
+                TCMaster.WriteSingleRegister(slaveID, 0x2011, 0);  //0: Servo is ON; 1: Servo is OFF
 
                 sendFlag = false;
 
@@ -2244,9 +2231,10 @@ namespace yiyi.MotionDefine
                 }
                 sendFlag = true;
 
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
-                TCMaster.WriteSingleCoil(slaveID, 0x0403, false);  
-              
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
+
+                TCMaster.WriteSingleRegister(slaveID, 0x2011, 1);  //0: Servo is ON; 1: Servo is OFF
+
                 sendFlag = false;
 
                 TC_Cfg[cardNum].BasicFeatures[AxisNum].EnableServoON = false;
@@ -2281,7 +2269,7 @@ namespace yiyi.MotionDefine
             //ushort bStopStatus = 0;
             //int OffsetPls = 0;
             int movePluse = 0;
-            
+
             try
             {
                 if (MotionClass.MotionDefine.simulateFlag && MotionClass.MotionDefine.simulateNoModbusFlag)
@@ -2302,12 +2290,12 @@ namespace yiyi.MotionDefine
 
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                     //檢查軸停止
-                   
+
                     if (!mStatus[slaveID].DRV)
                     {
                         //檢查前往位置是否超出軟体極限
-                        int cmdPls = (int)(Tar_Pos );
-                        returnStatus=TC_Check_Limit(cardNum, AxisNum, cmdPls);
+                        int cmdPls = (int)(Tar_Pos);
+                        returnStatus = TC_Check_Limit(cardNum, AxisNum, cmdPls);
                         if (returnStatus == 0)
                         {
                             //是否已回home過
@@ -2324,7 +2312,7 @@ namespace yiyi.MotionDefine
                                 //string cmd;
 
                                 ushort Target_Pos = (ushort)movePluse;
-                                ushort Pos_Band=1;
+                                ushort Pos_Band = 1;
                                 ushort Speed = (ushort)V;
                                 ushort Acc_Speed = (ushort)A;
 
@@ -2387,7 +2375,7 @@ namespace yiyi.MotionDefine
                             sendFlag = false;
                             if (!ngFlag_TC_Table_GO)
                             {
-                                ngFlag_TC_Table_GO=true;
+                                ngFlag_TC_Table_GO = true;
                                 string strErrMsg = "TC_Table_GO() falied with Check_Limit error";
                                 MotionClass.WriteEventLog(strErrMsg);
                             }
@@ -2400,7 +2388,7 @@ namespace yiyi.MotionDefine
             }
             catch (Exception ex)
             {
-                sendFlag = false;   
+                sendFlag = false;
                 if (!ngFlag_TC_Table_GO)
                 {
                     ngFlag_TC_Table_GO = true;
@@ -2441,13 +2429,13 @@ namespace yiyi.MotionDefine
                     sendFlag = true;
 
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                    
+
                     //檢查軸停止
                     if (!mStatus[slaveID].DRV)
                     {
                         //檢查前往位置是否超出軟体極限
                         int cmdPls = (int)(Tar_Pos);
-                        returnStatus=TC_Check_Limit(cardNum, AxisNum, cmdPls);
+                        returnStatus = TC_Check_Limit(cardNum, AxisNum, cmdPls);
                         if (returnStatus == 0)
                         {
                             //是否已回home過
@@ -2503,7 +2491,7 @@ namespace yiyi.MotionDefine
                                             break;
                                         }
                                     }
-                                }         
+                                }
                                 sendFlag = false;
                                 TC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
                                 ngFlag_TC_Table_GO = false;
@@ -2513,34 +2501,34 @@ namespace yiyi.MotionDefine
                                 sendFlag = false;
                                 returnStatus = -1002;
                             }
-                         }
+                        }
                         else
                         {
                             sendFlag = false;
                             if (!ngFlag_TC_Par_Table_GO)
                             {
-                                ngFlag_TC_Par_Table_GO=true;
+                                ngFlag_TC_Par_Table_GO = true;
                                 string strErrMsg = "TC_Par_Table_GO() falied with Check_Limit error";
                                 MotionClass.WriteEventLog(strErrMsg);
                             }
                             return returnStatus;
-                        }    
+                        }
                     }
                 }
                 sendFlag = false;
                 return returnStatus;
-                 
+
             }
             catch (Exception ex)
             {
-                   sendFlag = false;
-                   if (!ngFlag_TC_Par_Table_GO)
-                    {
-                        ngFlag_TC_Par_Table_GO = true;
-                        string strErrMsg = string.Format("TC_Par_Table_GO() falied with error code : {0}", ex.Message);
-                        MotionClass.WriteEventLog(strErrMsg);
-                    }
-                    return returnStatus;
+                sendFlag = false;
+                if (!ngFlag_TC_Par_Table_GO)
+                {
+                    ngFlag_TC_Par_Table_GO = true;
+                    string strErrMsg = string.Format("TC_Par_Table_GO() falied with error code : {0}", ex.Message);
+                    MotionClass.WriteEventLog(strErrMsg);
+                }
+                return returnStatus;
             }
         }
         #endregion
@@ -2558,12 +2546,9 @@ namespace yiyi.MotionDefine
                 }
                 sendFlag = true;
 
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
-                TCMaster.WriteSingleCoil(slaveID, 0x040B, false);
-                // Thread.Sleep(10); //Vic,2018/10/24 取消，確認沒有影響，還是可以正常回home
-                TCMaster.WriteSingleCoil(slaveID, 0x040B, true);
-                Thread.Sleep(30);
-                TCMaster.WriteSingleCoil(slaveID, 0x040B, false); //Vic,2018/10/24 home的狀態要恢復,不然會影響其它動作
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
+
+                TCMaster.WriteSingleRegister(slaveID, 0x201E, 3); //3: Home return
                 sendFlag = false;
                 returnStatus = ErrCode.SUCCESS_NO_ERROR;
                 return returnStatus;
@@ -2585,11 +2570,11 @@ namespace yiyi.MotionDefine
             //Int16 int16Value=0;
             try
             {
-                
+
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                
+
                 if (mStatus[slaveID].HEND)
-                    returnStatus = ErrCode.SUCCESS_NO_ERROR;;   //完成了--0
+                    returnStatus = ErrCode.SUCCESS_NO_ERROR; ;   //完成了--0
 
                 return returnStatus;
             }
@@ -2608,8 +2593,8 @@ namespace yiyi.MotionDefine
         public static int TC_Relative_GO(Byte cardNum, UInt16 AxisNum, int Tar_Pos)
         {
             int returnStatus = -99; //異常碼 -99
-            //byte bDone = 0;
-           // ushort bStopStatus = 0;
+                                    //byte bDone = 0;
+                                    // ushort bStopStatus = 0;
             int OffsetPls = 0;
             int movePluse = 0;
             try
@@ -2632,14 +2617,14 @@ namespace yiyi.MotionDefine
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                     //檢查軸停止
-                   
-                    if ( !mStatus[slaveID].DRV)
+
+                    if (!mStatus[slaveID].DRV)
                     {
-                        returnStatus = TC_Get_Enccounter(cardNum, AxisNum, ref  OffsetPls);
+                        returnStatus = TC_Get_Enccounter(cardNum, AxisNum, ref OffsetPls);
                         //判斷是否正常
                         if (returnStatus != ErrCode.SUCCESS_NO_ERROR) return returnStatus;
                         //檢查前往位置是否超出軟体極限
-                        int cmdPls = OffsetPls + (int)(Tar_Pos );
+                        int cmdPls = OffsetPls + (int)(Tar_Pos);
                         //檢查軟体極限
                         returnStatus = TC_Check_Limit(cardNum, AxisNum, cmdPls);
                         if (returnStatus == 0)
@@ -2651,12 +2636,12 @@ namespace yiyi.MotionDefine
                                 uint V = TC_Cfg[cardNum].BasicFeatures[AxisNum].V;
                                 float A = TC_Cfg[cardNum].BasicFeatures[AxisNum].A;
                                 float D = TC_Cfg[cardNum].BasicFeatures[AxisNum].D;
-                                
+
                                 movePluse = (int)(Tar_Pos * TC_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
                                 Int32 Target_Pos = (Int32)movePluse;
                                 ushort Pos_Band = 1;
-                               
+
                                 byte[] data = new byte[] { 0x1, 0x10, 0x99, 0x00, 0x00, 0x09, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x27, 0x10, 0x00, 0x1E, 0x00, 0x00, 0x00, 0x08, 0xF3, 0xA0 };
                                 //                       { Slave address, Function code, Start address, register num, byte num, Target Pos,             Pos band,               speed,                  加速度,     push,       control flag, CRC  }
                                 Stopwatch sw = new Stopwatch();
@@ -2679,7 +2664,7 @@ namespace yiyi.MotionDefine
                                 data[9] = (byte)((targetPos >> 8) & 0x000000FF);//vic,2018/12/15
                                 data[10] = (byte)(targetPos & 0x000000FF); //vic,2018/12/15   
 
-                                
+
                                 //Position band
                                 data[13] = (byte)((Pos_Band >> 8) & 0x00FF);
                                 data[14] = (byte)(Pos_Band & 0x00FF);
@@ -2724,7 +2709,7 @@ namespace yiyi.MotionDefine
                                 TC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
                                 sendFlag = false;
                                 ngFlag_TC_Relative_GO = false;
-                                
+
                             }
                             else
                             {
@@ -2789,10 +2774,10 @@ namespace yiyi.MotionDefine
 
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                     //檢查軸停止
-                    
+
                     if (!mStatus[slaveID].DRV)
                     {
-                        returnStatus = TC_Get_Enccounter(cardNum, AxisNum, ref  OffsetPls);
+                        returnStatus = TC_Get_Enccounter(cardNum, AxisNum, ref OffsetPls);
                         //判斷是否正常
                         if (returnStatus != ErrCode.SUCCESS_NO_ERROR) return returnStatus;
                         //檢查前往位置是否超出軟体極限
@@ -2875,7 +2860,7 @@ namespace yiyi.MotionDefine
                                             break;
                                         }
                                     }
-                                }                               
+                                }
 
                                 sendFlag = false;
                                 TC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
@@ -2940,16 +2925,16 @@ namespace yiyi.MotionDefine
                             return -98;//WAIT
                     }
                     sendFlag = true;
-                  
+
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                     //檢查軸停止
                     if (!mStatus[slaveID].DRV)
                     {
 
 
-                        returnStatus = TC_Get_Enccounter(cardNum, AXIS_ID[AxisNum], ref  OffsetPls);
+                        returnStatus = TC_Get_Enccounter(cardNum, AXIS_ID[AxisNum], ref OffsetPls);
                         if (returnStatus != ErrCode.SUCCESS_NO_ERROR) return returnStatus;
-                        
+
                         //判斷是否正常
                         if (returnStatus != ErrCode.SUCCESS_NO_ERROR) return returnStatus;
 
@@ -3029,7 +3014,7 @@ namespace yiyi.MotionDefine
                                         break;
                                     }
                                 }
-                            }                               
+                            }
                             sendFlag = false;
                             ngFlag_TC_Manual_Rel_Par_GO = false;
                             TC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
@@ -3076,7 +3061,7 @@ namespace yiyi.MotionDefine
             //ushort bStopStatus = 0;
             int OffsetPls = 0;
             int movePluse = 0;
-            
+
             try
             {
                 if (MotionClass.MotionDefine.simulateFlag && MotionClass.MotionDefine.simulateNoModbusFlag)
@@ -3087,19 +3072,19 @@ namespace yiyi.MotionDefine
                 }
                 else
                 {
-                    
+
                     if (sendFlag)
                     {
                         if (TC_Idle_Wait())
                             return -98;//WAIT
                     }
                     sendFlag = true;
-                    
+
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                     //檢查軸停止
                     if (!mStatus[slaveID].DRV)
                     {
-                        returnStatus = TC_Get_Enccounter(cardNum, AxisNum, ref  OffsetPls);
+                        returnStatus = TC_Get_Enccounter(cardNum, AxisNum, ref OffsetPls);
                         //判斷是否正常
                         if (returnStatus != ErrCode.SUCCESS_NO_ERROR) return returnStatus;
 
@@ -3179,7 +3164,7 @@ namespace yiyi.MotionDefine
                                         break;
                                     }
                                 }
-                            }                               
+                            }
                             sendFlag = false;
                             ngFlag_TC_Manual_Rel_GO = false;
                             TC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
@@ -3222,7 +3207,7 @@ namespace yiyi.MotionDefine
             //int OffsetPls = 0;
             //int movePluse = 0;
 
-            returnStatus = TC_Motion_Done(cardNum, AxisNum, ref  bDone);
+            returnStatus = TC_Motion_Done(cardNum, AxisNum, ref bDone);
             //檢查軸停止
             if (returnStatus == ErrCode.SUCCESS_NO_ERROR && bDone == Param.MOTION_DONE)
             {
@@ -3256,30 +3241,26 @@ namespace yiyi.MotionDefine
                 //else
                 //    sendFlag = true;
 
-                byte slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                 //指定馬達NO=1
 
                 if (Mode == 1)
                 {
-                    TCMaster.WriteSingleCoil(slaveID, 0x042C, true);     //立即停止
-                    //TCMaster.WriteSingleCoil(slaveID, 0x0417, false);  //JOG 前停止
-                    //TCMaster.WriteSingleCoil(slaveID, 0x0416, false);    //JOG 後停止
-                    
+                    //TCMaster.WriteSingleCoil(slaveID, 0x042C, true);     //立即停止
+                    TCMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop                                                                          
                 }
                 else
                 {
-                    TCMaster.WriteSingleCoil(slaveID, 0x042C, true);     //減速停止
-                    //TCMaster.WriteSingleCoil(slaveID, 0x0417, false);  //JOG 前停止
-                    //TCMaster.WriteSingleCoil(slaveID, 0x0416, false);    //JOG 後停止
-                    
-                }  
+                    //TCMaster.WriteSingleCoil(slaveID, 0x042C, true);     //減速停止
+                    TCMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop
+                }
                 //sendFlag = false;
                 returnStatus = 0;
                 return returnStatus;
             }
             catch (Exception ex)
             {
-               // sendFlag = false;
+                // sendFlag = false;
                 string strErrMsg = string.Format("TC_Stop() falied with error code : {0}", ex.Message);
                 MotionClass.WriteEventLog(strErrMsg);
 
@@ -3302,7 +3283,7 @@ namespace yiyi.MotionDefine
                     TC_Cfg[cardNum].BasicFeatures[AxisNum].bHomOK = true;
 
                     slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                    
+
                     mStatus[slaveID].Position = 0;
 
                     returnStatus = ErrCode.SUCCESS_NO_ERROR;
@@ -3313,8 +3294,8 @@ namespace yiyi.MotionDefine
                     //    return -98;//WAIT
                     //else
                     //    sendFlag = true;
-                    
-                    slaveID = (byte)((cardNum-1) * 4 + AxisNum + 1);
+
+                    slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                     //無法指定位置值--->
                     //指定馬達NO
                     //sendFlag = false;
@@ -3346,7 +3327,6 @@ namespace yiyi.MotionDefine
             int returnStatus = -3; //異常碼 -3
             //ushort  status;
             ushort[] data;
-            Int16 int16Value0, int16Value2;
 
             try
             {
@@ -3364,27 +3344,39 @@ namespace yiyi.MotionDefine
                 int bData = 0;
                 TC_Get_Enccounter2(cardNum, AxisNum, ref bData);
 
-                //2.讀取驅動軸狀態9005-->1-3
-                data = TCMaster.ReadHoldingRegisters(slaveID, 0x9005, 3);
-
-                //讀取驅動軸狀態1
-                int16Value0 = (Int16)data[0];//Convert ushort value to Int16(WORD)
+                //2.讀取驅動軸狀態1005(AlarmStatus)、100D(ErrorStatus)、1001(InpStatus)、1000(ActionStatus)
+                data = new ushort[4] {  TCMaster.ReadHoldingRegisters(slaveID, 0x1005, 1)[0],
+                                        TCMaster.ReadHoldingRegisters(slaveID, 0x100D, 1)[0],
+                                        TCMaster.ReadHoldingRegisters(slaveID, 0x1001, 1)[0],
+                                        TCMaster.ReadHoldingRegisters(slaveID, 0x1000, 1)[0] };
+                
                 //異常檢查
-                if ((int16Value0 & (ushort)MaskBit.Bit8) > 1 ||    //絕對錯誤
-                    (int16Value0 & (ushort)MaskBit.Bit9) > 1 ||    //輕微錯誤
-                    (int16Value0 & (ushort)MaskBit.Bit10) > 1 ||    //嚴重錯誤
-                    (int16Value0 & (ushort)MaskBit.Bit15) > 1      //急停狀態
-                    )
+                if (data[0] != 0) //AlarmStatus
                 {
                     mStatus[slaveID].ALM = true;
                     if (!Read_Motor_Status_Ng[slaveID])
                     {
-                        MotionClass.WriteEventLog(slaveID.ToString() +"9005--->" + data[0].ToString() + " " + data[1].ToString() + " " + data[2].ToString());
-                        data = TCMaster.ReadHoldingRegisters(slaveID, 0x9002, 1);
-                        MotionClass.WriteEventLog(slaveID.ToString() + "9002--->" + data[0].ToString());
+                        MotionClass.WriteEventLog(slaveID.ToString() + "1005--->" + data[0].ToString());                                                
                         Read_Motor_Status_Ng[slaveID] = true;
                     }
-
+                }
+                else if (   //ErrorStatus
+                            (data[1] == 2) ||  //2: Upper limit and lower limit error
+                            (data[1] == 3) ||  //3: Position error
+                            (data[1] == 4) ||  //4: Format error
+                            (data[1] == 5) ||  //5: Control mode error
+                            (data[1] == 7) ||  //7: Torque detection not completed
+                            (data[1] == 8) ||  //8: Servo is ON or OFF error
+                            (data[1] == 9) ||  //9: LOCK signal error
+                            (data[1] == 10)    //A: Soft limit
+                        )
+                {
+                    mStatus[slaveID].ALM = true;
+                    if (!Read_Motor_Status_Ng[slaveID])
+                    {                        
+                        MotionClass.WriteEventLog(slaveID.ToString() + "100D--->" + data[1].ToString());
+                        Read_Motor_Status_Ng[slaveID] = true;
+                    }
                 }
                 else
                 {
@@ -3392,22 +3384,22 @@ namespace yiyi.MotionDefine
                     Read_Motor_Status_Ng[slaveID] = false;
                 }
 
-                if ((int16Value0 & (ushort)MaskBit.Bit3) > 1)    //指定點動作完作
+                if (data[2] == 1)   //指定點動作完作
+                                    //0: The current position is not within the set range
+                                    //1: The current position is within the target range
                     mStatus[slaveID].HEND = true;
                 else
                     mStatus[slaveID].HEND = false;
 
 
-                if ((int16Value0 & (ushort)MaskBit.Bit4) > 1)    //驅動軸已曾歸零
-                    mStatus[slaveID].HEND = true;
-                else
-                    mStatus[slaveID].HEND = false;
+                //if ((int16Value0 & (ushort)MaskBit.Bit4) > 1)    //驅動軸已曾歸零
+                //    mStatus[slaveID].HEND = true;
+                //else
+                //    mStatus[slaveID].HEND = false;
 
-                //讀取驅動軸狀態3-BIT5 MOVE 移動狀態
-                int16Value2 = (Int16)data[2];
-                
+
                 // 分解狀態-馬達運轉中
-                if ((int16Value2 & (ushort)MaskBit.Bit5) > 1)    //
+                if (data[3] == 1)   //0: Stop, 1: Working, 2: Abnormal stop                                    
                     mStatus[slaveID].DRV = true;
                 else
                     mStatus[slaveID].DRV = false;
@@ -3415,7 +3407,7 @@ namespace yiyi.MotionDefine
 
                 //檢查軟体正負極限
                 int returnSLFlag = TC_Check_Limit(cardNum, AxisNum, mStatus[slaveID].Position);
-                if (returnSLFlag== -1000)
+                if (returnSLFlag == -1000)
                     mStatus[slaveID].SLMTP = true;
                 else
                     mStatus[slaveID].SLMTP = false;
@@ -3445,7 +3437,7 @@ namespace yiyi.MotionDefine
         #endregion
 
         #region 取得目前軸卡位置(Encorder_Position)
-        public static int TC_Get_Enccounter2(Byte cardNum, UInt16 AxisNum, ref　int bData)
+        public static int TC_Get_Enccounter2(Byte cardNum, UInt16 AxisNum, ref int bData)
         {
             int returnStatus = -99; //異常碼 -99
             byte slaveID;
@@ -3474,21 +3466,25 @@ namespace yiyi.MotionDefine
                     .....     .......
                    -1     <->0xFFFFFFFF
                    */
-                    Double dValue = 0;
-                    data = TCMaster.ReadHoldingRegisters(slaveID, 0x9000, 2);
-                    UInt32 uint32Value = (UInt32)data[0] << 16;
-                    uint32Value += (UInt32)data[1];
-                    if (uint32Value > 0xFFF0BDC1 && uint32Value <= 0xFFFFFFFF)
-                    {
-                        //馬達位置是負的
-                        uint32Value = (0xFFFFFFFF - uint32Value );
-                        dValue = (Double)(-uint32Value ); //假設是0.01mm
-                    }
-                    else
-                    {   //馬達位置是正的
-                        dValue = (Double)(uint32Value )-1; //假設是0.01mm
-                    }
 
+                    //Double dValue = 0;
+                    //data = TCMaster.ReadHoldingRegisters(slaveID, 0x9000, 2);
+                    //UInt32 uint32Value = (UInt32)data[0] << 16;
+                    //uint32Value += (UInt32)data[1];
+                    //if (uint32Value > 0xFFF0BDC1 && uint32Value <= 0xFFFFFFFF)
+                    //{
+                    //    //馬達位置是負的
+                    //    uint32Value = (0xFFFFFFFF - uint32Value );
+                    //    dValue = (Double)(-uint32Value ); //假設是0.01mm
+                    //}
+                    //else
+                    //{   //馬達位置是正的
+                    //    dValue = (Double)(uint32Value )-1; //假設是0.01mm
+                    //}
+
+                    Double dValue = 0;
+                    data = TCMaster.ReadHoldingRegisters(slaveID, 0x1007, 1);  //Motor current value,*0.1% 
+                    dValue = (Double)(data[0]) * 0.001;
                     bData = (int)(dValue); //假設是0.01mm-->轉成um
 
 
@@ -3526,13 +3522,9 @@ namespace yiyi.MotionDefine
                             return -98;//WAIT
                     }
                     sendFlag = true;
-                    
+
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                    TCMaster.WriteSingleCoil(slaveID, 0x0407, false);
-                    Thread.Sleep(100);
-                    TCMaster.WriteSingleCoil(slaveID, 0x0407, true);
-                    Thread.Sleep(100);
-                    TCMaster.WriteSingleCoil(slaveID, 0x0407, false);
+                    TCMaster.WriteSingleRegister(slaveID, 0x201E, 6);  //6: Alarm return
 
                     sendFlag = false;
                     returnStatus = ErrCode.SUCCESS_NO_ERROR;
@@ -3552,10 +3544,10 @@ namespace yiyi.MotionDefine
         #region 等待-解除
         public static bool TC_Idle_Wait()
         {
-            bool ret=true;
+            bool ret = true;
             for (int i = 0; i < 20; i++)
             {
-           
+
                 if (sendFlag)
                 {
                     Thread.Sleep(10);
@@ -3568,10 +3560,10 @@ namespace yiyi.MotionDefine
             }
 
             return ret;
-        }    
+        }
         #endregion
 
         #endregion
     }
-    
+
 }
