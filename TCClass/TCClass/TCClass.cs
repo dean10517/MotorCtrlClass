@@ -3324,9 +3324,8 @@ namespace yiyi.MotionDefine
 
         public static int Read_Motor_Status(Byte cardNum, UInt16 AxisNum)
         {
-            int returnStatus = -3; //異常碼 -3
-            //ushort  status;
-            ushort[] data;
+            int returnStatus = -3; //異常碼 -3            
+            ushort[] data,tmp;
 
             try
             {
@@ -3345,11 +3344,12 @@ namespace yiyi.MotionDefine
                 TC_Get_Enccounter2(cardNum, AxisNum, ref bData);
 
                 //2.讀取驅動軸狀態1005(AlarmStatus)、100D(ErrorStatus)、1001(InpStatus)、1000(ActionStatus)
-                data = new ushort[4] {  TCMaster.ReadHoldingRegisters(slaveID, 0x1005, 1)[0],
+                tmp = TCMaster.ReadHoldingRegisters(slaveID, 0x1000, 2);
+                data = new ushort[4]{   TCMaster.ReadHoldingRegisters(slaveID, 0x1005, 1)[0],
                                         TCMaster.ReadHoldingRegisters(slaveID, 0x100D, 1)[0],
-                                        TCMaster.ReadHoldingRegisters(slaveID, 0x1001, 1)[0],
-                                        TCMaster.ReadHoldingRegisters(slaveID, 0x1000, 1)[0] };
-                
+                                        tmp[1],
+                                        tmp[0]};
+
                 //異常檢查
                 if (data[0] != 0) //AlarmStatus
                 {
