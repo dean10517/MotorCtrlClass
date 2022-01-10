@@ -2548,7 +2548,8 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                XCMaster.WriteSingleRegister(slaveID, 0x201E, 3); //3: Home return
+                //XCMaster.WriteSingleRegister(slaveID, 0x201E, 3); //3: Home return
+                
                 sendFlag = false;
                 returnStatus = ErrCode.SUCCESS_NO_ERROR;
                 return returnStatus;
@@ -3361,14 +3362,15 @@ namespace yiyi.MotionDefine
                     }
                 }
                 else if (   //ErrorStatus
-                            (data[1] == 2) ||  //2: Upper limit and lower limit error
-                            (data[1] == 3) ||  //3: Position error
-                            (data[1] == 4) ||  //4: Format error
-                            (data[1] == 5) ||  //5: Control mode error
-                            (data[1] == 7) ||  //7: Torque detection not completed
-                            (data[1] == 8) ||  //8: Servo is ON or OFF error
+                            (data[1] == 2) ||  //2: error in upper/lower limit
+                            (data[1] == 3) ||  //3: position error
+                            (data[1] == 4) ||  //4: format error
+                            (data[1] == 5) ||  //5: error in control mode
+                            (data[1] == 7) ||  //7: power coefficient detection is not completed
+                            (data[1] == 8) ||  //8: error in Servo ON/OFF
                             (data[1] == 9) ||  //9: LOCK signal error
-                            (data[1] == 10)    //A: Soft limit
+                            (data[1] == 10) || //10: software limit
+                            (data[1] == 11)    //11: insufficient write permission for parameters                            
                         )
                 {
                     mStatus[slaveID].ALM = true;
@@ -3384,18 +3386,18 @@ namespace yiyi.MotionDefine
                     Read_Motor_Status_Ng[slaveID] = false;
                 }
 
-                if (data[2] == 1)   //指定點動作完作
-                                    //0: The current position is not within the set range
-                                    //1: The current position is within the target range
+                if (data[1] != 12)    //驅動軸已曾歸零, 12: origin reset is not completed
                     mStatus[slaveID].HEND = true;
                 else
                     mStatus[slaveID].HEND = false;
 
 
-                //if ((int16Value0 & (ushort)MaskBit.Bit4) > 1)    //驅動軸已曾歸零
-                //    mStatus[slaveID].HEND = true;
-                //else
-                //    mStatus[slaveID].HEND = false;
+                if (data[2] == 1)   //指定點動作完作
+                                    //0: existing position has not reached the set range
+                                    //1: existing position has reached the set range                                    
+                    mStatus[slaveID].HEND = true;
+                else
+                    mStatus[slaveID].HEND = false;
 
 
                 // 分解狀態-馬達運轉中
@@ -3524,7 +3526,7 @@ namespace yiyi.MotionDefine
                     sendFlag = true;
 
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                    XCMaster.WriteSingleRegister(slaveID, 0x201E, 6);  //6: Alarm return
+                    XCMaster.WriteSingleRegister(slaveID, 0x201E, 6);  //6: Alarm reset
 
                     sendFlag = false;
                     returnStatus = ErrCode.SUCCESS_NO_ERROR;
