@@ -3346,12 +3346,17 @@ namespace yiyi.MotionDefine
 
                 //2.讀取驅動軸狀態1005(AlarmStatus)、100D(ErrorStatus)、1001(InpStatus)、1000(ActionStatus)
                 tmp = XCMaster.ReadHoldingRegisters(slaveID, 0x1000, 2);
+
+                //data[0] : AlarmStatus
+                //data[1] : ErrorStatus
+                //data[2] : InpStatus
+                //data[3] : ActionStatus
                 data = new ushort[4]{   XCMaster.ReadHoldingRegisters(slaveID, 0x1005, 1)[0],
                                         XCMaster.ReadHoldingRegisters(slaveID, 0x100D, 1)[0],
                                         tmp[1],
                                         tmp[0]};
 
-                //異常檢查
+                //異常檢查 AlarmStatus
                 if (data[0] != 0) //AlarmStatus
                 {
                     mStatus[slaveID].ALM = true;
@@ -3386,13 +3391,13 @@ namespace yiyi.MotionDefine
                     Read_Motor_Status_Ng[slaveID] = false;
                 }
 
-                if (data[1] != 12)    //驅動軸已曾歸零, 12: origin reset is not completed
-                    mStatus[slaveID].HEND = true;
-                else
+                if (data[1] == 12)    //驅動軸已曾歸零, 12: origin reset is not completed
                     mStatus[slaveID].HEND = false;
+                else
+                    mStatus[slaveID].HEND = true;
 
 
-                if (data[2] == 1)   //指定點動作完作
+                if (data[2] == 1)   //指定點動作完作 InpStatus
                                     //0: existing position has not reached the set range
                                     //1: existing position has reached the set range                                    
                     mStatus[slaveID].HEND = true;
@@ -3400,7 +3405,7 @@ namespace yiyi.MotionDefine
                     mStatus[slaveID].HEND = false;
 
 
-                // 分解狀態-馬達運轉中
+                // 分解狀態-馬達運轉中 ActionStatus
                 if (data[3] == 1)   //0: Stop, 1: Working, 2: Abnormal stop                                    
                     mStatus[slaveID].DRV = true;
                 else
@@ -3485,8 +3490,8 @@ namespace yiyi.MotionDefine
                     //}
 
                     Double dValue = 0;
-                    data = XCMaster.ReadHoldingRegisters(slaveID, 0x1007, 1);  //Motor current value,*0.1% 
-                    dValue = (Double)(data[0]) * 0.001;
+                    data = XCMaster.ReadHoldingRegisters(slaveID, 0x100A, 1);  //Encoder position
+                    dValue = (Double)(data[0]);
                     bData = (int)(dValue); //假設是0.01mm-->轉成um
 
 

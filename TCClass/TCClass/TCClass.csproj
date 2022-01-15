@@ -34,10 +34,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MotionClass">
-      <HintPath>G:\我的雲端硬碟\Project\PPDevIng張先生馬達控制\MotionClass.dll</HintPath>
+      <HintPath>G:\My Drive\Project\PPDevIng張先生馬達控制\MotionClass.dll</HintPath>
     </Reference>
     <Reference Include="nmodbuspc">
-      <HintPath>G:\我的雲端硬碟\Project\PPDevIng張先生馬達控制\nmodbuspc.dll</HintPath>
+      <HintPath>G:\My Drive\Project\PPDevIng張先生馬達控制\nmodbuspc.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,6 +62,7 @@
     <Compile Include="TCClass.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XCClass.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
