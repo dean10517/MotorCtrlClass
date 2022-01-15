@@ -2315,50 +2315,75 @@ namespace yiyi.MotionDefine
                                 ushort Pos_Band = 1;
                                 ushort Speed = (ushort)V;
                                 ushort Acc_Speed = (ushort)A;
+                                ushort Dec_Speed = (ushort)D;
 
-                                byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
+                                ushort[] data = new ushort[14];
+                                //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
                                 //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
                                 Stopwatch sw = new Stopwatch();
                                 sw.Reset();
 
-                                data[0] = slaveID;
+                                //9010H 移動模式 => 1：ABS 絕對位置移動
+                                data[0] = 1;
 
-                                //目標位置            
-                                data[9] = (byte)((Target_Pos >> 8) & 0x00FF);
-                                data[10] = (byte)(Target_Pos & 0x00FF);
-                                //Position band
-                                data[13] = (byte)((Pos_Band >> 8) & 0x00FF);
-                                data[14] = (byte)(Pos_Band & 0x00FF);
-                                //速度            
-                                data[17] = (byte)((Speed >> 8) & 0x00FF);
-                                data[18] = (byte)(Speed & 0x00FF);
-                                //加速度           
-                                data[19] = (byte)((Acc_Speed >> 8) & 0x00FF);
-                                data[20] = (byte)(Acc_Speed & 0x00FF);
-                                //CRC
-                                ushort uCRC = Crc16.ComputeCrc(data);
-                                data[data.Length - 2] = (byte)(uCRC & 0x00FF);
-                                data[data.Length - 1] = (byte)((uCRC >> 8) & 0x00FF);
+                                //9011H 移動位置
+                                data[1] = (ushort)((Target_Pos >> 8) & 0x00FF);
+                                data[2] = (ushort)(Target_Pos & 0x00FF);
 
-                                XCPort.DiscardInBuffer();
+                                //9013H 移動速度
+                                data[3] = Speed;
+
+                                //9014H 扭力限制 0~1000 x 0.1 %
+                                data[4] = 0;
+
+                                //9015H 預留
+                                data[5] = 0;
+
+                                //9016H 範圍L
+                                //區間範圍的下限值。
+                                //當目前位置小於設定值，則 INRANGE 的指定 IO
+                                //將輸出。(初始值 0)            
+                                data[6] = 0;
+                                data[7] = 0;
+
+                                //9018H 範圍H
+                                //區間範圍的上限值。
+                                //當目前位置小於設定值，則 INRANGE 的指定 IO
+                                //將輸出。(初始值 0)            
+                                data[8] = 0xFFFF;
+                                data[9] = 0xFFFF;
+
+                                //901AH 加速時間 馬達加速時間設定。( 初期值 300) 1~30000msec
+                                data[10] = Acc_Speed;
+
+                                //901BH 減速時間 馬達減速時間設定。( 初期值 300) 1~30000msec
+                                data[11] = Dec_Speed;
+
+                                //901CH 等待時間 移動結束後，等待的時間。( 初期值 0) 0~30000msec
+                                data[12] = 0;
+                                
+                                //901DH 下一個步序 最後結束後，跳到指定程序。(初期值 - 1)
+                                //data[13] = -1;
+                              
                                 sw.Start();
-                                XCPort.Write(data, 0, data.Length);
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x9010,data);
 
-                                while (sw.ElapsedMilliseconds < 100)
-                                {
-                                    Thread.Sleep(10);
-                                    int n = XCPort.BytesToRead;
-                                    if (n == 8)
-                                    {
-                                        byte[] result = new byte[50];
-                                        XCPort.Read(result, 0, n);
-                                        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                        {
-                                            returnStatus = 0;     //正常
-                                            break;
-                                        }
-                                    }
-                                }
+                                //確認是否寫入
+                                //while (sw.ElapsedMilliseconds < 100)
+                                //{
+                                //    Thread.Sleep(10);
+                                //    int n = XCPort.BytesToRead;
+                                //    if (n == 8)
+                                //    {
+                                //        byte[] result = new byte[50];
+                                //        XCPort.Read(result, 0, n);
+                                //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
+                                //        {
+                                //            returnStatus = 0;     //正常
+                                //            break;
+                                //        }
+                                //    }
+                                //}
 
                                 sendFlag = false;
                                 XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
