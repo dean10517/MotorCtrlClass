@@ -34,10 +34,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MotionClass">
-      <HintPath>G:\My Drive\Project\PPDevIng張先生馬達控制\MotionClass.dll</HintPath>
+      <HintPath>G:\我的雲端硬碟\Project\PPDevIng張先生馬達控制\MotionClass.dll</HintPath>
     </Reference>
     <Reference Include="nmodbuspc">
-      <HintPath>G:\My Drive\Project\PPDevIng張先生馬達控制\nmodbuspc.dll</HintPath>
+      <HintPath>G:\我的雲端硬碟\Project\PPDevIng張先生馬達控制\nmodbuspc.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

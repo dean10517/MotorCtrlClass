@@ -2311,64 +2311,40 @@ namespace yiyi.MotionDefine
                                 movePluse = (int)(Tar_Pos * XC_Cfg[cardNum].AxisConfig[AxisNum].Scale);
                                 //string cmd;
 
-                                ushort Target_Pos = (ushort)movePluse;
+                                int Target_Pos = movePluse;
                                 ushort Pos_Band = 1;
-                                ushort Speed = (ushort)V;
+                                uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data = new ushort[14];
+                                ushort[] data;
                                 //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
                                 //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
                                 Stopwatch sw = new Stopwatch();
                                 sw.Reset();
-
-                                //9010H 移動模式 => 1：ABS 絕對位置移動
-                                data[0] = 1;
-
-                                //9011H 移動位置
-                                data[1] = (ushort)((Target_Pos >> 8) & 0x00FF);
-                                data[2] = (ushort)(Target_Pos & 0x00FF);
-
-                                //9013H 移動速度
-                                data[3] = Speed;
-
-                                //9014H 扭力限制 0~1000 x 0.1 %
-                                data[4] = 0;
-
-                                //9015H 預留
-                                data[5] = 0;
-
-                                //9016H 範圍L
-                                //區間範圍的下限值。
-                                //當目前位置小於設定值，則 INRANGE 的指定 IO
-                                //將輸出。(初始值 0)            
-                                data[6] = 0;
-                                data[7] = 0;
-
-                                //9018H 範圍H
-                                //區間範圍的上限值。
-                                //當目前位置小於設定值，則 INRANGE 的指定 IO
-                                //將輸出。(初始值 0)            
-                                data[8] = 0xFFFF;
-                                data[9] = 0xFFFF;
-
-                                //901AH 加速時間 馬達加速時間設定。( 初期值 300) 1~30000msec
-                                data[10] = Acc_Speed;
-
-                                //901BH 減速時間 馬達減速時間設定。( 初期值 300) 1~30000msec
-                                data[11] = Dec_Speed;
-
-                                //901CH 等待時間 移動結束後，等待的時間。( 初期值 0) 0~30000msec
-                                data[12] = 0;
-                                
-                                //901DH 下一個步序 最後結束後，跳到指定程序。(初期值 - 1)
-                                //data[13] = -1;
-                              
                                 sw.Start();
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x9010,data);
 
-                                //確認是否寫入
+                                //速度設定
+                                data = new ushort[4];
+                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
+                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
+                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
+                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
+
+                                //執行動作
+                                data = new ushort[2];
+                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
+                                data[1] = (ushort)(Target_Pos & 0xFFFF);
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2002H ABSamount 絕對移動量 
+                                XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
+                                                                                         //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                         //比例設定值。
+                                                                                         //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                         //值。
+
+                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //MovType 移動類型 => 1：ABS 絕對位置移動
+
                                 //while (sw.ElapsedMilliseconds < 100)
                                 //{
                                 //    Thread.Sleep(10);
@@ -2468,55 +2444,55 @@ namespace yiyi.MotionDefine
                             {
                                 movePluse = (int)(Tar_Pos * XC_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
-                                ushort Target_Pos = (ushort)movePluse;
+                                int Target_Pos = movePluse;
                                 ushort Pos_Band = 1;
-                                ushort Speed = (ushort)V;
+                                uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
+                                ushort Dec_Speed = (ushort)D;
 
-                                byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
+                                ushort[] data;
+                                //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
                                 //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
                                 Stopwatch sw = new Stopwatch();
                                 sw.Reset();
-
-
-                                data[0] = slaveID;
-
-                                //目標位置            
-                                data[9] = (byte)((Target_Pos >> 8) & 0x00FF);
-                                data[10] = (byte)(Target_Pos & 0x00FF);
-                                //Position band
-                                data[13] = (byte)((Pos_Band >> 8) & 0x00FF);
-                                data[14] = (byte)(Pos_Band & 0x00FF);
-                                //速度            
-                                data[17] = (byte)((Speed >> 8) & 0x00FF);
-                                data[18] = (byte)(Speed & 0x00FF);
-                                //加速度           
-                                data[19] = (byte)((Acc_Speed >> 8) & 0x00FF);
-                                data[20] = (byte)(Acc_Speed & 0x00FF);
-                                //CRC
-                                ushort uCRC = Crc16.ComputeCrc(data);
-                                data[data.Length - 2] = (byte)(uCRC & 0x00FF);
-                                data[data.Length - 1] = (byte)((uCRC >> 8) & 0x00FF);
-
-                                XCPort.DiscardInBuffer();
                                 sw.Start();
-                                XCPort.Write(data, 0, data.Length);
 
-                                while (sw.ElapsedMilliseconds < 100)
-                                {
-                                    Thread.Sleep(10);
-                                    int n = XCPort.BytesToRead;
-                                    if (n == 8)
-                                    {
-                                        byte[] result = new byte[50];
-                                        XCPort.Read(result, 0, n);
-                                        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                        {
-                                            returnStatus = 0;     //正常
-                                            break;
-                                        }
-                                    }
-                                }
+                                //速度設定
+                                data = new ushort[4];
+                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
+                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
+                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
+                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
+
+                                //執行動作
+                                data = new ushort[2];
+                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
+                                data[1] = (ushort)(Target_Pos & 0xFFFF);
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2002H ABSamount 絕對移動量 
+                                XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
+                                                                                         //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                         //比例設定值。
+                                                                                         //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                         //值。
+
+                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //MovType 移動類型 => 1：ABS 絕對位置移動
+
+                                //while (sw.ElapsedMilliseconds < 100)
+                                //{
+                                //    Thread.Sleep(10);
+                                //    int n = XCPort.BytesToRead;
+                                //    if (n == 8)
+                                //    {
+                                //        byte[] result = new byte[50];
+                                //        XCPort.Read(result, 0, n);
+                                //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
+                                //        {
+                                //            returnStatus = 0;     //正常
+                                //            break;
+                                //        }
+                                //    }
+                                //}
                                 sendFlag = false;
                                 XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
                                 ngFlag_XC_Table_GO = false;
@@ -2665,72 +2641,55 @@ namespace yiyi.MotionDefine
 
                                 movePluse = (int)(Tar_Pos * XC_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
-                                Int32 Target_Pos = (Int32)movePluse;
+                                int Target_Pos = movePluse;
                                 ushort Pos_Band = 1;
+                                uint Speed = V;
+                                ushort Acc_Speed = (ushort)A;
+                                ushort Dec_Speed = (ushort)D;
 
-                                byte[] data = new byte[] { 0x1, 0x10, 0x99, 0x00, 0x00, 0x09, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x27, 0x10, 0x00, 0x1E, 0x00, 0x00, 0x00, 0x08, 0xF3, 0xA0 };
-                                //                       { Slave address, Function code, Start address, register num, byte num, Target Pos,             Pos band,               speed,                  加速度,     push,       control flag, CRC  }
+                                ushort[] data;
+                                //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
+                                //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
                                 Stopwatch sw = new Stopwatch();
                                 sw.Reset();
-
-                                data[0] = slaveID;
-
-                                short dir = 0;
-                                UInt32 targetPos = (UInt32)Target_Pos; //vic,2018/12/15
-                                if (Target_Pos < 0)
-                                {
-                                    Target_Pos = (Int32)(-Target_Pos);//vic,2018/12/15
-                                    targetPos = (UInt32)(~Target_Pos + 1);//vic,2018/12/15
-                                    dir = 1;
-                                }
-
-                                //目標位置            
-                                data[7] = (byte)((targetPos >> 24) & 0x000000FF);//vic,2018/12/15
-                                data[8] = (byte)((targetPos >> 16) & 0x000000FF);//vic,2018/12/15  
-                                data[9] = (byte)((targetPos >> 8) & 0x000000FF);//vic,2018/12/15
-                                data[10] = (byte)(targetPos & 0x000000FF); //vic,2018/12/15   
-
-
-                                //Position band
-                                data[13] = (byte)((Pos_Band >> 8) & 0x00FF);
-                                data[14] = (byte)(Pos_Band & 0x00FF);
-                                //速度
-                                Int16 speed = (Int16)V;
-                                data[17] = (byte)((speed >> 8) & 0x00FF);
-                                data[18] = (byte)(speed & 0x00FF);
-                                //加速度
-                                Int16 ADSpeed = (Int16)A;
-                                data[19] = (byte)((ADSpeed >> 8) & 0x00FF);
-                                data[20] = (byte)(ADSpeed & 0x00FF);
-
-                                if (dir == 1)
-                                    data[24] = 12;
-                                else
-                                    data[24] = 8;
-
-                                ushort uCRC = Crc16.ComputeCrc(data);
-                                data[data.Length - 2] = (byte)(uCRC & 0x00FF);
-                                data[data.Length - 1] = (byte)(uCRC >> 8);
-
-                                XCPort.DiscardInBuffer();
-
                                 sw.Start();
-                                XCPort.Write(data, 0, data.Length);
-                                while (sw.ElapsedMilliseconds < 100)
-                                {
-                                    Thread.Sleep(10);
-                                    int n = XCPort.BytesToRead;
-                                    if (n == 8)
-                                    {
-                                        byte[] result = new byte[50];
-                                        XCPort.Read(result, 0, n);
-                                        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                        {
-                                            returnStatus = 0;     //正常
-                                            break;
-                                        }
-                                    }
-                                }
+
+                                //速度設定
+                                data = new ushort[4];
+                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
+                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
+                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
+                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
+
+                                //執行動作
+                                data = new ushort[2];
+                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
+                                data[1] = (ushort)(Target_Pos & 0xFFFF);
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2000H INCamount 相對移動量 
+                                XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
+                                                                                         //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                         //比例設定值。
+                                                                                         //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                         //值。
+
+                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //MovType 移動類型 => 0：INC 相對位置移動
+
+                                //while (sw.ElapsedMilliseconds < 100)
+                                //{
+                                //    Thread.Sleep(10);
+                                //    int n = XCPort.BytesToRead;
+                                //    if (n == 8)
+                                //    {
+                                //        byte[] result = new byte[50];
+                                //        XCPort.Read(result, 0, n);
+                                //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
+                                //        {
+                                //            returnStatus = 0;     //正常
+                                //            break;
+                                //        }
+                                //    }
+                                //}
 
                                 XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
                                 sendFlag = false;
@@ -2822,71 +2781,55 @@ namespace yiyi.MotionDefine
 
                                 movePluse = (int)(Tar_Par.P * XC_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
-                                Int32 Target_Pos = (Int32)movePluse;
+                                int Target_Pos = movePluse;
                                 ushort Pos_Band = 1;
+                                uint Speed = V;
+                                ushort Acc_Speed = (ushort)A;
+                                ushort Dec_Speed = (ushort)D;
 
-                                byte[] data = new byte[] { 0x1, 0x10, 0x99, 0x00, 0x00, 0x09, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x27, 0x10, 0x00, 0x1E, 0x00, 0x00, 0x00, 0x08, 0xF3, 0xA0 };
-                                //                       { Slave address, Function code, Start address, register num, byte num, Target Pos,             Pos band,               speed,                  加速度,     push,       control flag, CRC  }
+                                ushort[] data;
+                                //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
+                                //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
                                 Stopwatch sw = new Stopwatch();
                                 sw.Reset();
-
-                                data[0] = slaveID;
-
-                                short dir = 0;
-                                UInt32 targetPos = (UInt32)Target_Pos; //vic,2018/12/15
-                                if (Target_Pos < 0)
-                                {
-                                    Target_Pos = (Int32)(-Target_Pos);//vic,2018/12/15
-                                    targetPos = (UInt32)(~Target_Pos + 1);//vic,2018/12/15
-                                    dir = 1;
-                                }
-
-                                //目標位置            
-                                data[7] = (byte)((targetPos >> 24) & 0x000000FF);//vic,2018/12/15
-                                data[8] = (byte)((targetPos >> 16) & 0x000000FF);//vic,2018/12/15  
-                                data[9] = (byte)((targetPos >> 8) & 0x000000FF);//vic,2018/12/15
-                                data[10] = (byte)(targetPos & 0x000000FF); //vic,2018/12/15  
-
-                                //Position band
-                                data[13] = (byte)((Pos_Band >> 8) & 0x00FF);
-                                data[14] = (byte)(Pos_Band & 0x00FF);
-                                //速度
-                                Int16 speed = (Int16)V;
-                                data[17] = (byte)((speed >> 8) & 0x00FF);
-                                data[18] = (byte)(speed & 0x00FF);
-                                //加速度
-                                Int16 ADSpeed = (Int16)A;
-                                data[19] = (byte)((ADSpeed >> 8) & 0x00FF);
-                                data[20] = (byte)(ADSpeed & 0x00FF);
-
-                                if (dir == 1)
-                                    data[24] = 12;
-                                else
-                                    data[24] = 8;
-
-                                ushort uCRC = Crc16.ComputeCrc(data);
-                                data[data.Length - 2] = (byte)(uCRC & 0x00FF);
-                                data[data.Length - 1] = (byte)(uCRC >> 8);
-
-                                XCPort.DiscardInBuffer();
-
                                 sw.Start();
-                                XCPort.Write(data, 0, data.Length);
-                                while (sw.ElapsedMilliseconds < 100)
-                                {
-                                    Thread.Sleep(10);
-                                    int n = XCPort.BytesToRead;
-                                    if (n == 8)
-                                    {
-                                        byte[] result = new byte[50];
-                                        XCPort.Read(result, 0, n);
-                                        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                        {
-                                            returnStatus = 0;     //正常
-                                            break;
-                                        }
-                                    }
-                                }
+
+                                //速度設定
+                                data = new ushort[4];
+                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
+                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
+                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
+                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
+
+                                //執行動作
+                                data = new ushort[2];
+                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
+                                data[1] = (ushort)(Target_Pos & 0xFFFF);
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2000H INCamount 相對移動量 
+                                XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
+                                                                                         //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                         //比例設定值。
+                                                                                         //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                         //值。
+
+                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //MovType 移動類型 => 0：INC 相對位置移動
+
+                                //while (sw.ElapsedMilliseconds < 100)
+                                //{
+                                //    Thread.Sleep(10);
+                                //    int n = XCPort.BytesToRead;
+                                //    if (n == 8)
+                                //    {
+                                //        byte[] result = new byte[50];
+                                //        XCPort.Read(result, 0, n);
+                                //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
+                                //        {
+                                //            returnStatus = 0;     //正常
+                                //            break;
+                                //        }
+                                //    }
+                                //}
 
                                 sendFlag = false;
                                 XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
@@ -2977,70 +2920,55 @@ namespace yiyi.MotionDefine
                             movePluse = (int)(Tar_Par.P * XC_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
                             Int32 Target_Pos = (Int32)movePluse;
+                            //int Target_Pos = movePluse;
                             ushort Pos_Band = 1;
+                            uint Speed = V;
+                            ushort Acc_Speed = (ushort)A;
+                            ushort Dec_Speed = (ushort)D;
 
-                            byte[] data = new byte[] { 0x1, 0x10, 0x99, 0x00, 0x00, 0x09, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x27, 0x10, 0x00, 0x1E, 0x00, 0x00, 0x00, 0x08, 0xF3, 0xA0 };
-                            //                       { Slave address, Function code, Start address, register num, byte num, Target Pos,             Pos band,               speed,                  加速度,     push,       control flag, CRC  }
+                            ushort[] data;
+                            //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
+                            //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
                             Stopwatch sw = new Stopwatch();
                             sw.Reset();
-
-                            data[0] = slaveID;
-
-                            short dir = 0;
-                            UInt32 targetPos = (UInt32)Target_Pos; //vic,2018/12/15
-                            if (Target_Pos < 0)
-                            {
-                                Target_Pos = (Int32)(-Target_Pos);//vic,2018/12/15
-                                targetPos = (UInt32)(~Target_Pos + 1);//vic,2018/12/15
-                                dir = 1;
-                            }
-
-                            //目標位置            
-                            data[7] = (byte)((targetPos >> 24) & 0x000000FF);//vic,2018/12/15
-                            data[8] = (byte)((targetPos >> 16) & 0x000000FF);//vic,2018/12/15  
-                            data[9] = (byte)((targetPos >> 8) & 0x000000FF);//vic,2018/12/15
-                            data[10] = (byte)(targetPos & 0x000000FF); //vic,2018/12/15  
-
-                            //Position band
-                            data[13] = (byte)((Pos_Band >> 8) & 0x00FF);
-                            data[14] = (byte)(Pos_Band & 0x00FF);
-                            //速度
-                            Int16 speed = (Int16)V;
-                            data[17] = (byte)((speed >> 8) & 0x00FF);
-                            data[18] = (byte)(speed & 0x00FF);
-                            //加速度
-                            Int16 ADSpeed = (Int16)A;
-                            data[19] = (byte)((ADSpeed >> 8) & 0x00FF);
-                            data[20] = (byte)(ADSpeed & 0x00FF);
-
-                            if (dir == 1)
-                                data[24] = 12;
-                            else
-                                data[24] = 8;
-
-                            ushort uCRC = Crc16.ComputeCrc(data);
-                            data[data.Length - 2] = (byte)(uCRC & 0x00FF);
-                            data[data.Length - 1] = (byte)(uCRC >> 8);
-
-                            XCPort.DiscardInBuffer();
-
                             sw.Start();
-                            XCPort.Write(data, 0, data.Length);
-                            while (sw.ElapsedMilliseconds < 100)
-                            {
-                                Thread.Sleep(10);
-                                int n = XCPort.BytesToRead;
-                                if (n == 8)
-                                {
-                                    byte[] result = new byte[50];
-                                    XCPort.Read(result, 0, n);
-                                    if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                    {
-                                        returnStatus = 0;     //正常
-                                        break;
-                                    }
-                                }
-                            }
+
+                            //速度設定
+                            data = new ushort[4];
+                            data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
+                            data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
+                            data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
+                            data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
+                            XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
+
+                            //執行動作
+                            data = new ushort[2];
+                            data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
+                            data[1] = (ushort)(Target_Pos & 0xFFFF);
+                            XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2000H INCamount 相對移動量 
+                            XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
+                                                                                     //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                     //比例設定值。
+                                                                                     //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                     //值。
+
+                            XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //MovType 移動類型 => 0：INC 相對位置移動
+
+                            //while (sw.ElapsedMilliseconds < 100)
+                            //{
+                            //    Thread.Sleep(10);
+                            //    int n = XCPort.BytesToRead;
+                            //    if (n == 8)
+                            //    {
+                            //        byte[] result = new byte[50];
+                            //        XCPort.Read(result, 0, n);
+                            //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
+                            //        {
+                            //            returnStatus = 0;     //正常
+                            //            break;
+                            //        }
+                            //    }
+                            //}
                             sendFlag = false;
                             ngFlag_XC_Manual_Rel_Par_GO = false;
                             XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
@@ -3129,68 +3057,56 @@ namespace yiyi.MotionDefine
                             Int32 Target_Pos = (Int32)movePluse;
 
                             //XC參數指令區
+                            //int Target_Pos = movePluse;
                             ushort Pos_Band = 1;
-                            byte[] data = new byte[] { 0x1, 0x10, 0x99, 0x00, 0x00, 0x09, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x27, 0x10, 0x00, 0x1E, 0x00, 0x00, 0x00, 0x08, 0xF3, 0xA0 };
-                            //                       { Slave address, Function code, Start address, register num, byte num, Target Pos,             Pos band,               speed,                  加速度,     push,       control flag, CRC  }
+                            uint Speed = V;
+                            ushort Acc_Speed = (ushort)A;
+                            ushort Dec_Speed = (ushort)D;
+
+                            ushort[] data;
+                            //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
+                            //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
                             Stopwatch sw = new Stopwatch();
                             sw.Reset();
-
-                            data[0] = slaveID;
-
-                            short dir = 0;
-                            UInt32 targetPos = (UInt32)Target_Pos; //vic,2018/12/15
-                            if (Target_Pos < 0)
-                            {
-                                Target_Pos = (Int32)(-Target_Pos);//vic,2018/12/15
-                                targetPos = (UInt32)(~Target_Pos + 1);//vic,2018/12/15
-                                dir = 1;
-                            }
-
-                            //目標位置            
-                            data[7] = (byte)((targetPos >> 24) & 0x000000FF);//vic,2018/12/15
-                            data[8] = (byte)((targetPos >> 16) & 0x000000FF);//vic,2018/12/15  
-                            data[9] = (byte)((targetPos >> 8) & 0x000000FF);//vic,2018/12/15
-                            data[10] = (byte)(targetPos & 0x000000FF); //vic,2018/12/15  
-                            //Position band
-                            data[13] = (byte)((Pos_Band >> 8) & 0x00FF);
-                            data[14] = (byte)(Pos_Band & 0x00FF);
-                            //速度
-                            Int16 speed = (Int16)V;
-                            data[17] = (byte)((speed >> 8) & 0x00FF);
-                            data[18] = (byte)(speed & 0x00FF);
-                            //加速度
-                            Int16 ADSpeed = (Int16)A;
-                            data[19] = (byte)((ADSpeed >> 8) & 0x00FF);
-                            data[20] = (byte)(ADSpeed & 0x00FF);
-
-                            if (dir == 1)
-                                data[24] = 12;
-                            else
-                                data[24] = 8;
-
-                            ushort uCRC = Crc16.ComputeCrc(data);
-                            data[data.Length - 2] = (byte)(uCRC & 0x00FF);
-                            data[data.Length - 1] = (byte)(uCRC >> 8);
-
-                            XCPort.DiscardInBuffer();
-
                             sw.Start();
-                            XCPort.Write(data, 0, data.Length);
-                            while (sw.ElapsedMilliseconds < 100)
-                            {
-                                Thread.Sleep(10);
-                                int n = XCPort.BytesToRead;
-                                if (n == 8)
-                                {
-                                    byte[] result = new byte[50];
-                                    XCPort.Read(result, 0, n);
-                                    if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                    {
-                                        returnStatus = 0;     //正常
-                                        break;
-                                    }
-                                }
-                            }
+
+                            //速度設定
+                            data = new ushort[4];
+                            data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
+                            data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
+                            data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
+                            data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
+                            XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
+
+                            //執行動作
+                            data = new ushort[2];
+                            data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
+                            data[1] = (ushort)(Target_Pos & 0xFFFF);
+                            XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2000H INCamount 相對移動量 
+                            XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
+                                                                                     //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                     //比例設定值。
+                                                                                     //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                     //值。
+
+                            XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //MovType 移動類型 => 0：INC 相對位置移動
+
+                            //while (sw.ElapsedMilliseconds < 100)
+                            //{
+                            //    Thread.Sleep(10);
+                            //    int n = XCPort.BytesToRead;
+                            //    if (n == 8)
+                            //    {
+                            //        byte[] result = new byte[50];
+                            //        XCPort.Read(result, 0, n);
+                            //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
+                            //        {
+                            //            returnStatus = 0;     //正常
+                            //            break;
+                            //        }
+                            //    }
+                            //}
+
                             sendFlag = false;
                             ngFlag_XC_Manual_Rel_GO = false;
                             XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
