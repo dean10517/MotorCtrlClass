@@ -1,4 +1,5 @@
-﻿using Modbus.Device;
+﻿using FASTECH;
+using Modbus.Device;
 using PCI.PS400;
 using System;
 using System.Diagnostics;
@@ -1701,7 +1702,13 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                MECQMaster.WriteSingleRegister(slaveID, 0x201E, 9); //9: Emergency stop
+                int nRtn = EziMOTIONPlusRLib.FAS_EmergencyStop(byte.Parse(MECQPort.PortName.Substring(3)), slaveID);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_EmergencyStop() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
 
 
                 //sendFlag = false;
@@ -2198,8 +2205,14 @@ namespace yiyi.MotionDefine
 
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-
-                MECQMaster.WriteSingleRegister(slaveID, 0x2011, 0);  //0: Servo is ON; 1: Servo is OFF
+                
+                int nRtn = EziMOTIONPlusRLib.FAS_ServoEnable(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 1);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_ServoEnable() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
 
                 sendFlag = false;
 
@@ -2232,8 +2245,14 @@ namespace yiyi.MotionDefine
                 sendFlag = true;
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-
-                MECQMaster.WriteSingleRegister(slaveID, 0x2011, 1);  //0: Servo is ON; 1: Servo is OFF
+                
+                int nRtn = EziMOTIONPlusRLib.FAS_ServoEnable(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 0);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_ServoEnable() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
 
                 sendFlag = false;
 
@@ -3059,17 +3078,15 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                 //指定馬達NO=1
-
-                if (Mode == 1)
+                
+                int nRtn = EziMOTIONPlusRLib.FAS_MoveStop(byte.Parse(MECQPort.PortName.Substring(3)), slaveID);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
                 {
-                    //MECQMaster.WriteSingleCoil(slaveID, 0x042C, true);     //立即停止
-                    MECQMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop                                                                          
+                    string strMsg;
+                    strMsg = "FAS_MoveStop() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
                 }
-                else
-                {
-                    //MECQMaster.WriteSingleCoil(slaveID, 0x042C, true);     //減速停止
-                    MECQMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop
-                }
+               
                 //sendFlag = false;
                 returnStatus = 0;
                 return returnStatus;
@@ -3346,7 +3363,13 @@ namespace yiyi.MotionDefine
                     sendFlag = true;
 
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                    MECQMaster.WriteSingleRegister(slaveID, 0x201E, 6);  //6: Alarm reset
+
+                    int nRtn = EziMOTIONPlusRLib.FAS_ServoAlarmReset(byte.Parse(MECQPort.PortName.Substring(3)), slaveID);
+                    if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                    {
+                        string strMsg;
+                        strMsg = "FAS_ServoAlarmReset() \nReturned: " + nRtn.ToString();
+                    }
 
                     sendFlag = false;
                     returnStatus = ErrCode.SUCCESS_NO_ERROR;
