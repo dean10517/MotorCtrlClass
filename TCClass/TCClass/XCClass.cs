@@ -2317,12 +2317,7 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;
-                                //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
-                                //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
-                                Stopwatch sw = new Stopwatch();
-                                sw.Reset();
-                                sw.Start();
+                                ushort[] data;                             
 
                                 //速度設定
                                 data = new ushort[4];
@@ -2333,34 +2328,18 @@ namespace yiyi.MotionDefine
                                 XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
 
                                 //執行動作
-                                data = new ushort[2];
-                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                                data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2002H ABSamount 絕對移動量 
-                                XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
-                                                                                         //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                         //比例設定值。
-                                                                                         //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                         //值。
-
-                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //MovType 移動類型 => 1：ABS 絕對位置移動
-
-                                //while (sw.ElapsedMilliseconds < 100)
-                                //{
-                                //    Thread.Sleep(10);
-                                //    int n = XCPort.BytesToRead;
-                                //    if (n == 8)
-                                //    {
-                                //        byte[] result = new byte[50];
-                                //        XCPort.Read(result, 0, n);
-                                //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                //        {
-                                //            returnStatus = 0;     //正常
-                                //            break;
-                                //        }
-                                //    }
-                                //}
-
+                                data = new ushort[0x1F];                                    //2000H ~ 201EH
+                                data[0x02] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2002H ABSamount 絕對移動量 
+                                data[0x03] = (ushort)(Target_Pos & 0xFFFF);
+                                data[0x14] = 100;                                           //2014H MovSpeedSet 
+                                                                                            //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                            //比例設定值。
+                                                                                            //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                            //值。
+                                data[0x1E] = 1;                                             //201EH MovType 移動類型 => 1：ABS 絕對位置移動
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data);  
+                                
+                              
                                 sendFlag = false;
                                 XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
                                 ngFlag_XC_Table_GO = false;
@@ -2451,11 +2430,6 @@ namespace yiyi.MotionDefine
                                 ushort Dec_Speed = (ushort)D;
 
                                 ushort[] data;
-                                //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
-                                //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
-                                Stopwatch sw = new Stopwatch();
-                                sw.Reset();
-                                sw.Start();
 
                                 //速度設定
                                 data = new ushort[4];
@@ -2465,34 +2439,19 @@ namespace yiyi.MotionDefine
                                 data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
                                 XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
 
+
                                 //執行動作
-                                data = new ushort[2];
-                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                                data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2002H ABSamount 絕對移動量 
-                                XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
-                                                                                         //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                         //比例設定值。
-                                                                                         //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                         //值。
+                                data = new ushort[0x1F];                                    //2000H ~ 201EH
+                                data[0x02] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2002H ABSamount 絕對移動量 
+                                data[0x03] = (ushort)(Target_Pos & 0xFFFF);
+                                data[0x14] = 100;                                           //2014H MovSpeedSet 
+                                                                                            //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                            //比例設定值。
+                                                                                            //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                            //值。
+                                data[0x1E] = 1;                                             //201EH MovType 移動類型 => 1：ABS 絕對位置移動
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
 
-                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //MovType 移動類型 => 1：ABS 絕對位置移動
-
-                                //while (sw.ElapsedMilliseconds < 100)
-                                //{
-                                //    Thread.Sleep(10);
-                                //    int n = XCPort.BytesToRead;
-                                //    if (n == 8)
-                                //    {
-                                //        byte[] result = new byte[50];
-                                //        XCPort.Read(result, 0, n);
-                                //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                //        {
-                                //            returnStatus = 0;     //正常
-                                //            break;
-                                //        }
-                                //    }
-                                //}
                                 sendFlag = false;
                                 XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
                                 ngFlag_XC_Table_GO = false;
@@ -2647,12 +2606,7 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;
-                                //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
-                                //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
-                                Stopwatch sw = new Stopwatch();
-                                sw.Reset();
-                                sw.Start();
+                                ushort[] data;                                
 
                                 //速度設定
                                 data = new ushort[4];
@@ -2662,34 +2616,18 @@ namespace yiyi.MotionDefine
                                 data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
                                 XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
 
+
                                 //執行動作
-                                data = new ushort[2];
-                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                                data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2000H INCamount 相對移動量 
-                                XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
-                                                                                         //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                         //比例設定值。
-                                                                                         //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                         //值。
-
-                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //MovType 移動類型 => 0：INC 相對位置移動
-
-                                //while (sw.ElapsedMilliseconds < 100)
-                                //{
-                                //    Thread.Sleep(10);
-                                //    int n = XCPort.BytesToRead;
-                                //    if (n == 8)
-                                //    {
-                                //        byte[] result = new byte[50];
-                                //        XCPort.Read(result, 0, n);
-                                //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                //        {
-                                //            returnStatus = 0;     //正常
-                                //            break;
-                                //        }
-                                //    }
-                                //}
+                                data = new ushort[0x1F];                                    //2000H ~ 201EH
+                                data[0x00] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2000H INCamount 相對移動量  
+                                data[0x01] = (ushort)(Target_Pos & 0xFFFF);
+                                data[0x14] = 100;                                           //2014H MovSpeedSet 
+                                                                                            //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                            //比例設定值。
+                                                                                            //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                            //值。
+                                data[0x1E] = 0;                                             //201EH MovType 移動類型 => 0：INC 相對位置移動
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
 
                                 XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
                                 sendFlag = false;
@@ -2787,12 +2725,7 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;
-                                //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
-                                //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
-                                Stopwatch sw = new Stopwatch();
-                                sw.Reset();
-                                sw.Start();
+                                ushort[] data;                               
 
                                 //速度設定
                                 data = new ushort[4];
@@ -2802,34 +2735,18 @@ namespace yiyi.MotionDefine
                                 data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
                                 XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
 
+
                                 //執行動作
-                                data = new ushort[2];
-                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                                data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2000H INCamount 相對移動量 
-                                XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
-                                                                                         //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                         //比例設定值。
-                                                                                         //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                         //值。
-
-                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //MovType 移動類型 => 0：INC 相對位置移動
-
-                                //while (sw.ElapsedMilliseconds < 100)
-                                //{
-                                //    Thread.Sleep(10);
-                                //    int n = XCPort.BytesToRead;
-                                //    if (n == 8)
-                                //    {
-                                //        byte[] result = new byte[50];
-                                //        XCPort.Read(result, 0, n);
-                                //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                                //        {
-                                //            returnStatus = 0;     //正常
-                                //            break;
-                                //        }
-                                //    }
-                                //}
+                                data = new ushort[0x1F];                                    //2000H ~ 201EH
+                                data[0x00] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2000H INCamount 相對移動量  
+                                data[0x01] = (ushort)(Target_Pos & 0xFFFF);
+                                data[0x14] = 100;                                           //2014H MovSpeedSet 
+                                                                                            //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                            //比例設定值。
+                                                                                            //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                            //值。
+                                data[0x1E] = 0;                                             //201EH MovType 移動類型 => 0：INC 相對位置移動
+                                XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
 
                                 sendFlag = false;
                                 XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
@@ -2926,12 +2843,7 @@ namespace yiyi.MotionDefine
                             ushort Acc_Speed = (ushort)A;
                             ushort Dec_Speed = (ushort)D;
 
-                            ushort[] data;
-                            //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
-                            //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
-                            Stopwatch sw = new Stopwatch();
-                            sw.Reset();
-                            sw.Start();
+                            ushort[] data;                            
 
                             //速度設定
                             data = new ushort[4];
@@ -2942,33 +2854,16 @@ namespace yiyi.MotionDefine
                             XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
 
                             //執行動作
-                            data = new ushort[2];
-                            data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                            data[1] = (ushort)(Target_Pos & 0xFFFF);
-                            XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2000H INCamount 相對移動量 
-                            XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
-                                                                                     //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                     //比例設定值。
-                                                                                     //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                     //值。
-
-                            XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //MovType 移動類型 => 0：INC 相對位置移動
-
-                            //while (sw.ElapsedMilliseconds < 100)
-                            //{
-                            //    Thread.Sleep(10);
-                            //    int n = XCPort.BytesToRead;
-                            //    if (n == 8)
-                            //    {
-                            //        byte[] result = new byte[50];
-                            //        XCPort.Read(result, 0, n);
-                            //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                            //        {
-                            //            returnStatus = 0;     //正常
-                            //            break;
-                            //        }
-                            //    }
-                            //}
+                            data = new ushort[0x1F];                                    //2000H ~ 201EH
+                            data[0x00] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2000H INCamount 相對移動量  
+                            data[0x01] = (ushort)(Target_Pos & 0xFFFF);
+                            data[0x14] = 100;                                           //2014H MovSpeedSet 
+                                                                                        //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                        //比例設定值。
+                                                                                        //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                        //值。
+                            data[0x1E] = 0;                                             //201EH MovType 移動類型 => 0：INC 相對位置移動
+                            XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
                             sendFlag = false;
                             ngFlag_XC_Manual_Rel_Par_GO = false;
                             XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
@@ -3064,11 +2959,6 @@ namespace yiyi.MotionDefine
                             ushort Dec_Speed = (ushort)D;
 
                             ushort[] data;
-                            //byte[] data = new byte[] { 0x01, 0x10, 0x99, 0x00, 0x00, 0x07, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0xaf };
-                            //                       { Slave address, Function code, Start address, registers num, bytes num, Target position,     position band,       speed              , 加速度,     CRC} 
-                            Stopwatch sw = new Stopwatch();
-                            sw.Reset();
-                            sw.Start();
 
                             //速度設定
                             data = new ushort[4];
@@ -3078,34 +2968,18 @@ namespace yiyi.MotionDefine
                             data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
                             XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
 
+
                             //執行動作
-                            data = new ushort[2];
-                            data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                            data[1] = (ushort)(Target_Pos & 0xFFFF);
-                            XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data);  //2000H INCamount 相對移動量 
-                            XCMaster.WriteSingleRegister(slaveID, 0x2014, 100);      //2014H MovSpeedSet 
-                                                                                     //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                     //比例設定值。
-                                                                                     //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                     //值。
-
-                            XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //MovType 移動類型 => 0：INC 相對位置移動
-
-                            //while (sw.ElapsedMilliseconds < 100)
-                            //{
-                            //    Thread.Sleep(10);
-                            //    int n = XCPort.BytesToRead;
-                            //    if (n == 8)
-                            //    {
-                            //        byte[] result = new byte[50];
-                            //        XCPort.Read(result, 0, n);
-                            //        if ((result[0] == slaveID) & (result[1] == 0x10) & (result[2] == 0x99))
-                            //        {
-                            //            returnStatus = 0;     //正常
-                            //            break;
-                            //        }
-                            //    }
-                            //}
+                            data = new ushort[0x1F];                                    //2000H ~ 201EH
+                            data[0x00] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2000H INCamount 相對移動量  
+                            data[0x01] = (ushort)(Target_Pos & 0xFFFF);
+                            data[0x14] = 100;                                           //2014H MovSpeedSet 
+                                                                                        //當值為 1%~100%，速度為 0802 H 最高速度的
+                                                                                        //比例設定值。
+                                                                                        //當值為 0 %， 速度為 0800 H 起始速度的設定
+                                                                                        //值。
+                            data[0x1E] = 0;                                             //201EH MovType 移動類型 => 0：INC 相對位置移動
+                            XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
 
                             sendFlag = false;
                             ngFlag_XC_Manual_Rel_GO = false;
