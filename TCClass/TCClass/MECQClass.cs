@@ -3189,6 +3189,11 @@ namespace yiyi.MotionDefine
                                         tmp[0]};
 
                 //異常檢查 AlarmStatus
+                byte[] types = new byte[33];
+                int[] datas = new int[33];
+                EziMOTIONPlusRLib.FAS_GetAllStatusEx(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, types, datas);
+                //EziMOTIONPlusRLib.FAS_GetAllStatus()
+
                 if (data[0] != 0) //AlarmStatus
                 {
                     mStatus[slaveID].ALM = true;
