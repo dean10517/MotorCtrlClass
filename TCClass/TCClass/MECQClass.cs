@@ -2336,29 +2336,24 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;                             
+                                ushort[] data;
 
-                                //速度設定
-                                data = new ushort[4];
-                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                MECQMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
+                                //加減速設定
+                                var AccAndDec = new EziMOTIONPlusRLib.MOTION_OPTION_EX();
+                                AccAndDec.BIT_USE_CUSTOMACCEL = true;
+                                AccAndDec.BIT_USE_CUSTOMDECEL = true;
+                                AccAndDec.wCustomAccelTime = Acc_Speed;
+                                AccAndDec.wCustomDecelTime = Dec_Speed;
 
-                                //執行動作
-                                data = new ushort[0x1F];                                    //2000H ~ 201EH
-                                data[0x02] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2002H ABSamount 絕對移動量 
-                                data[0x03] = (ushort)(Target_Pos & 0xFFFF);
-                                data[0x14] = 100;                                           //2014H MovSpeedSet 
-                                                                                            //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                            //比例設定值。
-                                                                                            //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                            //值。
-                                data[0x1E] = 1;                                             //201EH MovType 移動類型 => 1：ABS 絕對位置移動
-                                MECQMaster.WriteMultipleRegisters(slaveID, 0x2000, data);  
-                                
-                              
+                                int nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisAbsPosEx(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, Target_Pos, Speed, AccAndDec);
+                                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                                {
+                                    string strMsg;
+                                    strMsg = "FAS_MoveSingleAxisAbsPosEx() \nReturned: " + nRtn.ToString();
+                                    throw new Exception(strMsg);
+                                }
+
+
                                 sendFlag = false;
                                 MECQ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
                                 ngFlag_MECQ_Table_GO = false;
@@ -2443,33 +2438,24 @@ namespace yiyi.MotionDefine
                                 movePluse = (int)(Tar_Pos * MECQ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
                                 int Target_Pos = movePluse;
-                                ushort Pos_Band = 1;
                                 uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;
+                                //加減速設定
+                                var AccAndDec = new EziMOTIONPlusRLib.MOTION_OPTION_EX();
+                                AccAndDec.BIT_USE_CUSTOMACCEL = true;
+                                AccAndDec.BIT_USE_CUSTOMDECEL = true;
+                                AccAndDec.wCustomAccelTime = Acc_Speed;
+                                AccAndDec.wCustomDecelTime = Dec_Speed;
 
-                                //速度設定
-                                data = new ushort[4];
-                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                MECQMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
-
-
-                                //執行動作
-                                data = new ushort[0x1F];                                    //2000H ~ 201EH
-                                data[0x02] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2002H ABSamount 絕對移動量 
-                                data[0x03] = (ushort)(Target_Pos & 0xFFFF);
-                                data[0x14] = 100;                                           //2014H MovSpeedSet 
-                                                                                            //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                            //比例設定值。
-                                                                                            //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                            //值。
-                                data[0x1E] = 1;                                             //201EH MovType 移動類型 => 1：ABS 絕對位置移動
-                                MECQMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
+                                int nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisAbsPosEx(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, Target_Pos, Speed, AccAndDec);
+                                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                                {
+                                    string strMsg;
+                                    strMsg = "FAS_MoveSingleAxisAbsPosEx() \nReturned: " + nRtn.ToString();
+                                    throw new Exception(strMsg);
+                                }
 
                                 sendFlag = false;
                                 MECQ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
@@ -2620,33 +2606,24 @@ namespace yiyi.MotionDefine
                                 movePluse = (int)(Tar_Pos * MECQ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
                                 int Target_Pos = movePluse;
-                                ushort Pos_Band = 1;
                                 uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;                                
+                                //加減速設定
+                                var AccAndDec = new EziMOTIONPlusRLib.MOTION_OPTION_EX();
+                                AccAndDec.BIT_USE_CUSTOMACCEL = true;
+                                AccAndDec.BIT_USE_CUSTOMDECEL = true;
+                                AccAndDec.wCustomAccelTime = Acc_Speed;
+                                AccAndDec.wCustomDecelTime = Dec_Speed;
 
-                                //速度設定
-                                data = new ushort[4];
-                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                MECQMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
-
-
-                                //執行動作
-                                data = new ushort[0x1F];                                    //2000H ~ 201EH
-                                data[0x00] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2000H INCamount 相對移動量  
-                                data[0x01] = (ushort)(Target_Pos & 0xFFFF);
-                                data[0x14] = 100;                                           //2014H MovSpeedSet 
-                                                                                            //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                            //比例設定值。
-                                                                                            //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                            //值。
-                                data[0x1E] = 0;                                             //201EH MovType 移動類型 => 0：INC 相對位置移動
-                                MECQMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
+                                int nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisIncPosEx(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, Target_Pos, Speed, AccAndDec);
+                                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                                {
+                                    string strMsg;
+                                    strMsg = "FAS_MoveSingleAxisIncPosEx() \nReturned: " + nRtn.ToString();
+                                    throw new Exception(strMsg);
+                                }
 
                                 MECQ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
                                 sendFlag = false;
@@ -2693,8 +2670,6 @@ namespace yiyi.MotionDefine
         public static int MECQ_Relative_Par_GO(Byte cardNum, UInt16 AxisNum, MotionClass.MySpeedPar Tar_Par)
         {
             int returnStatus = -99; //異常碼 -99
-            //byte bDone = 0;
-            //ushort bStopStatus = 0;
             int OffsetPls = 0;
             int movePluse = 0;
             try
@@ -2739,33 +2714,24 @@ namespace yiyi.MotionDefine
                                 movePluse = (int)(Tar_Par.P * MECQ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
                                 int Target_Pos = movePluse;
-                                ushort Pos_Band = 1;
                                 uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;                               
+                                //加減速設定
+                                var AccAndDec = new EziMOTIONPlusRLib.MOTION_OPTION_EX();
+                                AccAndDec.BIT_USE_CUSTOMACCEL = true;
+                                AccAndDec.BIT_USE_CUSTOMDECEL = true;
+                                AccAndDec.wCustomAccelTime = Acc_Speed;
+                                AccAndDec.wCustomDecelTime = Dec_Speed;
 
-                                //速度設定
-                                data = new ushort[4];
-                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                MECQMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
-
-
-                                //執行動作
-                                data = new ushort[0x1F];                                    //2000H ~ 201EH
-                                data[0x00] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2000H INCamount 相對移動量  
-                                data[0x01] = (ushort)(Target_Pos & 0xFFFF);
-                                data[0x14] = 100;                                           //2014H MovSpeedSet 
-                                                                                            //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                            //比例設定值。
-                                                                                            //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                            //值。
-                                data[0x1E] = 0;                                             //201EH MovType 移動類型 => 0：INC 相對位置移動
-                                MECQMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
+                                int nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisIncPosEx(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, Target_Pos, Speed, AccAndDec);
+                                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                                {
+                                    string strMsg;
+                                    strMsg = "FAS_MoveSingleAxisIncPosEx() \nReturned: " + nRtn.ToString();
+                                    throw new Exception(strMsg);
+                                }
 
                                 sendFlag = false;
                                 MECQ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
@@ -2857,32 +2823,25 @@ namespace yiyi.MotionDefine
 
                             Int32 Target_Pos = (Int32)movePluse;
                             //int Target_Pos = movePluse;
-                            ushort Pos_Band = 1;
                             uint Speed = V;
                             ushort Acc_Speed = (ushort)A;
                             ushort Dec_Speed = (ushort)D;
 
-                            ushort[] data;                            
+                            //加減速設定
+                            var AccAndDec = new EziMOTIONPlusRLib.MOTION_OPTION_EX();
+                            AccAndDec.BIT_USE_CUSTOMACCEL = true;
+                            AccAndDec.BIT_USE_CUSTOMDECEL = true;
+                            AccAndDec.wCustomAccelTime = Acc_Speed;
+                            AccAndDec.wCustomDecelTime = Dec_Speed;
 
-                            //速度設定
-                            data = new ushort[4];
-                            data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                            data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                            data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                            data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                            MECQMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
+                            int nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisIncPosEx(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, Target_Pos, Speed, AccAndDec);
+                            if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                            {
+                                string strMsg;
+                                strMsg = "FAS_MoveSingleAxisIncPosEx() \nReturned: " + nRtn.ToString();
+                                throw new Exception(strMsg);
+                            }
 
-                            //執行動作
-                            data = new ushort[0x1F];                                    //2000H ~ 201EH
-                            data[0x00] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2000H INCamount 相對移動量  
-                            data[0x01] = (ushort)(Target_Pos & 0xFFFF);
-                            data[0x14] = 100;                                           //2014H MovSpeedSet 
-                                                                                        //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                        //比例設定值。
-                                                                                        //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                        //值。
-                            data[0x1E] = 0;                                             //201EH MovType 移動類型 => 0：INC 相對位置移動
-                            MECQMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
                             sendFlag = false;
                             ngFlag_MECQ_Manual_Rel_Par_GO = false;
                             MECQ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
@@ -2970,35 +2929,25 @@ namespace yiyi.MotionDefine
                             movePluse = (int)(Tar_Pos * MECQ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
                             Int32 Target_Pos = (Int32)movePluse;
 
-                            //MECQ參數指令區
-                            //int Target_Pos = movePluse;
-                            ushort Pos_Band = 1;
+                            //MECQ參數指令區                            
                             uint Speed = V;
                             ushort Acc_Speed = (ushort)A;
                             ushort Dec_Speed = (ushort)D;
 
-                            ushort[] data;
+                            //加減速設定
+                            var AccAndDec = new EziMOTIONPlusRLib.MOTION_OPTION_EX();
+                            AccAndDec.BIT_USE_CUSTOMACCEL = true;
+                            AccAndDec.BIT_USE_CUSTOMDECEL = true;
+                            AccAndDec.wCustomAccelTime = Acc_Speed;
+                            AccAndDec.wCustomDecelTime = Dec_Speed;
 
-                            //速度設定
-                            data = new ushort[4];
-                            data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                            data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                            data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                            data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                            MECQMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //ABSamount 絕對移動量 
-
-
-                            //執行動作
-                            data = new ushort[0x1F];                                    //2000H ~ 201EH
-                            data[0x00] = (ushort)((Target_Pos >> 16) & 0xFFFF);         //2000H INCamount 相對移動量  
-                            data[0x01] = (ushort)(Target_Pos & 0xFFFF);
-                            data[0x14] = 100;                                           //2014H MovSpeedSet 
-                                                                                        //當值為 1%~100%，速度為 0802 H 最高速度的
-                                                                                        //比例設定值。
-                                                                                        //當值為 0 %， 速度為 0800 H 起始速度的設定
-                                                                                        //值。
-                            data[0x1E] = 0;                                             //201EH MovType 移動類型 => 0：INC 相對位置移動
-                            MECQMaster.WriteMultipleRegisters(slaveID, 0x2000, data);
+                            int nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisIncPosEx(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, Target_Pos, Speed, AccAndDec);
+                            if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                            {
+                                string strMsg;
+                                strMsg = "FAS_MoveSingleAxisIncPosEx() \nReturned: " + nRtn.ToString();
+                                throw new Exception(strMsg);
+                            }
 
                             sendFlag = false;
                             ngFlag_MECQ_Manual_Rel_GO = false;
@@ -3176,74 +3125,46 @@ namespace yiyi.MotionDefine
                 int bData = 0;
                 MECQ_Get_Enccounter2(cardNum, AxisNum, ref bData);
 
-                //2.讀取驅動軸狀態1005(AlarmStatus)、100D(ErrorStatus)、1001(InpStatus)、1000(ActionStatus)
-                tmp = MECQMaster.ReadHoldingRegisters(slaveID, 0x1000, 2);
-
-                //data[0] : AlarmStatus
-                //data[1] : ErrorStatus
-                //data[2] : InpStatus
-                //data[3] : ActionStatus
-                data = new ushort[4]{   MECQMaster.ReadHoldingRegisters(slaveID, 0x1005, 1)[0],
-                                        MECQMaster.ReadHoldingRegisters(slaveID, 0x100D, 1)[0],
-                                        tmp[1],
-                                        tmp[0]};
+                //2.讀取驅動軸狀態 FAS_GetAxisStatus
+                uint axisStatus = 0;
+                int nRtn = EziMOTIONPlusRLib.FAS_GetAxisStatus(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, ref axisStatus);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_GetAxisStatus() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
 
                 //異常檢查 AlarmStatus
-                byte[] types = new byte[33];
-                int[] datas = new int[33];
-                EziMOTIONPlusRLib.FAS_GetAllStatusEx(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, types, datas);
-                //EziMOTIONPlusRLib.FAS_GetAllStatus()
-
-                if (data[0] != 0) //AlarmStatus
+                if ((axisStatus & 0x00000001) == 1) //FFLAG_ERRORALL : One or more error occurs.
                 {
                     mStatus[slaveID].ALM = true;
                     if (!Read_Motor_Status_Ng[slaveID])
                     {
-                        MotionClass.WriteEventLog(slaveID.ToString() + "1005--->" + data[0].ToString());                                                
+                        MotionClass.WriteEventLog(slaveID.ToString() + "FAS_GetAxisStatus()--->" + axisStatus.ToString());                                                
                         Read_Motor_Status_Ng[slaveID] = true;
                     }
-                }
-                else if (   //ErrorStatus
-                            (data[1] == 2) ||  //2: error in upper/lower limit
-                            (data[1] == 3) ||  //3: position error
-                            (data[1] == 4) ||  //4: format error
-                            (data[1] == 5) ||  //5: error in control mode
-                            (data[1] == 7) ||  //7: power coefficient detection is not completed
-                            (data[1] == 8) ||  //8: error in Servo ON/OFF
-                            (data[1] == 9) ||  //9: LOCK signal error
-                            (data[1] == 10) || //10: software limit
-                            (data[1] == 11)    //11: insufficient write permission for parameters                            
-                        )
-                {
-                    mStatus[slaveID].ALM = true;
-                    if (!Read_Motor_Status_Ng[slaveID])
-                    {                        
-                        MotionClass.WriteEventLog(slaveID.ToString() + "100D--->" + data[1].ToString());
-                        Read_Motor_Status_Ng[slaveID] = true;
-                    }
-                }
+                }                
                 else
                 {
                     mStatus[slaveID].ALM = false;
                     Read_Motor_Status_Ng[slaveID] = false;
                 }
 
-                if (data[1] == 12)    //驅動軸已曾歸零, 12: origin reset is not completed
+                if ((axisStatus & 0X02000000) == 1)    //驅動軸已曾歸零, FFLAG_ORIGINRETOK : Origin return operation has been finished.
                     mStatus[slaveID].HEND = false;
                 else
                     mStatus[slaveID].HEND = true;
 
 
-                if (data[2] == 1)   //指定點動作完作 InpStatus
-                                    //0: existing position has not reached the set range
-                                    //1: existing position has reached the set range                                    
-                    mStatus[slaveID].HEND = true;
-                else
-                    mStatus[slaveID].HEND = false;
+                //if ((axisStatus & 0X00080000) == 1)   //指定點動作完作 FFLAG_INPOSITION : Inposition has been finished.                                   
+                //    mStatus[slaveID]. = true;
+                //else
+                //    mStatus[slaveID].HEND = false;
 
 
-                // 分解狀態-馬達運轉中 ActionStatus
-                if (data[3] == 1)   //0: Stop, 1: Working, 2: Abnormal stop                                    
+                // 分解狀態-馬達運轉中
+                if ((axisStatus & 0X08000000) == 1)   //FFLAG_MOTIONING : The motor is running.                                
                     mStatus[slaveID].DRV = true;
                 else
                     mStatus[slaveID].DRV = false;
@@ -3303,33 +3224,16 @@ namespace yiyi.MotionDefine
                 else
                 {
                     //目前馬達位置 
-                    /*
-                   因為馬達位置的值範圍是-999999~999999(0xFFF0BDC1~0x000F423F),
-                   -999999<->0xFFF0BDC1
-                   -999998<->0xFFF0BDC2
-                    .....     .......
-                   -1     <->0xFFFFFFFF
-                   */
-
-                    //Double dValue = 0;
-                    //data = MECQMaster.ReadHoldingRegisters(slaveID, 0x9000, 2);
-                    //UInt32 uint32Value = (UInt32)data[0] << 16;
-                    //uint32Value += (UInt32)data[1];
-                    //if (uint32Value > 0xFFF0BDC1 && uint32Value <= 0xFFFFFFFF)
-                    //{
-                    //    //馬達位置是負的
-                    //    uint32Value = (0xFFFFFFFF - uint32Value );
-                    //    dValue = (Double)(-uint32Value ); //假設是0.01mm
-                    //}
-                    //else
-                    //{   //馬達位置是正的
-                    //    dValue = (Double)(uint32Value )-1; //假設是0.01mm
-                    //}
-
-                    Double dValue = 0;
-                    data = MECQMaster.ReadHoldingRegisters(slaveID, 0x100A, 1);  //Encoder position
-                    dValue = (Double)(data[0]);
-                    bData = (int)(dValue); //假設是0.01mm-->轉成um
+                    int pos = 0;
+                    int nRtn = EziMOTIONPlusRLib.FAS_GetActualPos(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, ref pos);
+                    if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                    {
+                        string strMsg;
+                        strMsg = "FAS_GetActualPos() \nReturned: " + nRtn.ToString();
+                        throw new Exception(strMsg);
+                    }
+                  
+                    bData = pos; //假設是0.01mm-->轉成um
 
 
                     mStatus[slaveID].Position = bData;
