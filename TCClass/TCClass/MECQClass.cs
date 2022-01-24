@@ -338,15 +338,20 @@ namespace yiyi.MotionDefine
                     //1.軸卡初始化記憶空間宣告
                     MECQ_Init();
 
-                    //2.先關閉再開啟
-                    if (MECQPort.IsOpen)
-                        MECQPort.Close();
+                    ////2.先關閉再開啟
+                    //if (MECQPort.IsOpen)
+                    //    MECQPort.Close();
 
-                    //開啟通信埠
-                    MECQPort.Open();
+                    ////開啟通信埠
+                    //MECQPort.Open();
 
-                    MECQMaster = ModbusSerialMaster.CreateRtu(MECQPort);
-                    MECQMaster.Transport.ReadTimeout = 500;
+                    int nRtn = EziMOTIONPlusRLib.FAS_Connect(byte.Parse(MECQPort.PortName.Substring(3)), (uint)MECQPort.BaudRate);                    
+                    if (nRtn == 0)
+                    {
+                        string strMsg;
+                        strMsg = "FAS_MoveSingleAxisAbsPosEx() \nReturned: " + nRtn.ToString();
+                        throw new Exception(strMsg);
+                    }
                 }
                 return nErrCode;
             }
