@@ -3130,7 +3130,7 @@ namespace yiyi.MotionDefine
                 MECQ_Get_Enccounter2(cardNum, AxisNum, ref bData);
 
                 //2.讀取驅動軸狀態 FAS_GetAxisStatus
-                uint axisStatus = 0;
+                uint axisStatus = 0;                
                 int nRtn = EziMOTIONPlusRLib.FAS_GetAxisStatus(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, ref axisStatus);
                 if (nRtn != EziMOTIONPlusRLib.FMM_OK)
                 {
@@ -3166,9 +3166,8 @@ namespace yiyi.MotionDefine
                 //else
                 //    mStatus[slaveID].HEND = false;
 
-
                 // 分解狀態-馬達運轉中
-                if ((axisStatus & 0X08000000) == 1)   //FFLAG_MOTIONING : The motor is running.                                
+                if (axisStatus >= 0X20000000)    //FFLAG_MOTIONING : The motor is running.                                
                     mStatus[slaveID].DRV = true;
                 else
                     mStatus[slaveID].DRV = false;

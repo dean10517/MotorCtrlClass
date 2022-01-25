@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.comboBoxPortNo = new System.Windows.Forms.ComboBox();
             this.buttonConnect = new System.Windows.Forms.Button();
@@ -68,6 +69,15 @@
             this.buttonHome = new System.Windows.Forms.Button();
             this.buttonServoOFF = new System.Windows.Forms.Button();
             this.buttonEMS = new System.Windows.Forms.Button();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.textBoxDRV = new System.Windows.Forms.TextBox();
+            this.textBoxPOS = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.textBoxALM = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.textBoxHEND = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -518,9 +528,9 @@
             this.buttonServoOFF.Name = "buttonServoOFF";
             this.buttonServoOFF.Size = new System.Drawing.Size(114, 50);
             this.buttonServoOFF.TabIndex = 8;
-            this.buttonServoOFF.Text = "Servo ON";
+            this.buttonServoOFF.Text = "Servo OFF";
             this.buttonServoOFF.UseVisualStyleBackColor = true;
-            this.buttonServoOFF.Click += new System.EventHandler(this.buttonServoON_Click);
+            this.buttonServoOFF.Click += new System.EventHandler(this.buttonServoOFF_Click);
             // 
             // buttonEMS
             // 
@@ -531,13 +541,93 @@
             this.buttonEMS.TabIndex = 11;
             this.buttonEMS.Text = "EMS";
             this.buttonEMS.UseVisualStyleBackColor = true;
-            this.buttonEMS.Click += new System.EventHandler(this.buttonHome_Click);
+            this.buttonEMS.Click += new System.EventHandler(this.buttonEMS_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // textBoxDRV
+            // 
+            this.textBoxDRV.Location = new System.Drawing.Point(321, 268);
+            this.textBoxDRV.Name = "textBoxDRV";
+            this.textBoxDRV.Size = new System.Drawing.Size(100, 26);
+            this.textBoxDRV.TabIndex = 12;
+            // 
+            // textBoxPOS
+            // 
+            this.textBoxPOS.Location = new System.Drawing.Point(427, 268);
+            this.textBoxPOS.Name = "textBoxPOS";
+            this.textBoxPOS.Size = new System.Drawing.Size(100, 26);
+            this.textBoxPOS.TabIndex = 13;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(317, 245);
+            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(44, 20);
+            this.label7.TabIndex = 11;
+            this.label7.Text = "DRV";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(423, 245);
+            this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(42, 20);
+            this.label8.TabIndex = 14;
+            this.label8.Text = "POS";
+            // 
+            // textBoxALM
+            // 
+            this.textBoxALM.Location = new System.Drawing.Point(321, 323);
+            this.textBoxALM.Name = "textBoxALM";
+            this.textBoxALM.Size = new System.Drawing.Size(100, 26);
+            this.textBoxALM.TabIndex = 12;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(317, 300);
+            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(42, 20);
+            this.label9.TabIndex = 11;
+            this.label9.Text = "ALM";
+            // 
+            // textBoxHEND
+            // 
+            this.textBoxHEND.Location = new System.Drawing.Point(321, 381);
+            this.textBoxHEND.Name = "textBoxHEND";
+            this.textBoxHEND.Size = new System.Drawing.Size(100, 26);
+            this.textBoxHEND.TabIndex = 12;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(317, 358);
+            this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(55, 20);
+            this.label10.TabIndex = 11;
+            this.label10.Text = "HEND";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(899, 805);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.textBoxPOS);
+            this.Controls.Add(this.textBoxHEND);
+            this.Controls.Add(this.textBoxALM);
+            this.Controls.Add(this.textBoxDRV);
             this.Controls.Add(this.buttonEMS);
             this.Controls.Add(this.buttonHome);
             this.Controls.Add(this.groupBox3);
@@ -607,6 +697,15 @@
         private System.Windows.Forms.Button buttonRelateParDEC;
         private System.Windows.Forms.Button buttonServoOFF;
         private System.Windows.Forms.Button buttonEMS;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.TextBox textBoxDRV;
+        private System.Windows.Forms.TextBox textBoxPOS;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox textBoxALM;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox textBoxHEND;
+        private System.Windows.Forms.Label label10;
     }
 }
 

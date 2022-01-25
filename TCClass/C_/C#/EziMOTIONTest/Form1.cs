@@ -25,8 +25,12 @@ namespace EziMOTIONTest
             UpdateSerialPortList();
             comboBaudrate.SelectedIndex = 4;    // default baudrate: 115200 
 
+            textSlaveNo.Text = "1";
+
             textPosition.Text = "10000";
             textSpeed.Text = "10000";
+            textBoxAccelTime.Text = "100";
+            textBoxDecelTime.Text = "100";
         }
 
         private void UpdateSerialPortList()
@@ -69,6 +73,8 @@ namespace EziMOTIONTest
 
                 MECQClass.MECQ_Setup_Com(new SerialPort("COM" + m_nPortNo.ToString(), (int)dwBaud));
                 MECQClass.MECQ_Open_Com();
+
+                timer1.Enabled = true;
 
                 if (false)
                 {
@@ -284,15 +290,17 @@ namespace EziMOTIONTest
                 return;
             }
 
-            iSlaveNo = byte.Parse(textSlaveNo.Text);
+            MECQClass.MECQ_Alarm_Clear(1, 0);
 
-            nRtn = EziMOTIONPlusRLib.FAS_ServoAlarmReset(m_nPortNo, iSlaveNo);
-            if (nRtn != EziMOTIONPlusRLib.FMM_OK)
-            {
-                string strMsg;
-                strMsg = "FAS_ServoAlarmReset() \nReturned: " + nRtn.ToString();
-                MessageBox.Show(strMsg, "Function Failed");
-            }
+            //iSlaveNo = byte.Parse(textSlaveNo.Text);
+
+            //nRtn = EziMOTIONPlusRLib.FAS_ServoAlarmReset(m_nPortNo, iSlaveNo);
+            //if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+            //{
+            //    string strMsg;
+            //    strMsg = "FAS_ServoAlarmReset() \nReturned: " + nRtn.ToString();
+            //    MessageBox.Show(strMsg, "Function Failed");
+            //}
         }
 
         private void buttonServoON_Click(object sender, EventArgs e)
@@ -323,6 +331,32 @@ namespace EziMOTIONTest
             //}
         }
 
+        private void buttonServoOFF_Click(object sender, EventArgs e)
+
+        {
+            byte iSlaveNo;
+            int nRtn;
+
+            if (m_bConnected == false)
+                return;
+
+            if (textSlaveNo.Text.Length <= 0)
+            {
+                textSlaveNo.Focus();
+                return;
+            }            
+            
+            MECQClass.MECQ_Servo_OFF(1, 0);
+
+            //nRtn = EziMOTIONPlusRLib.FAS_ServoEnable(m_nPortNo, iSlaveNo, 1);
+            //if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+            //{
+            //	string strMsg;
+            //	strMsg = "FAS_ServoEnable() \nReturned: " + nRtn.ToString();
+            //	MessageBox.Show(strMsg, "Function Failed");
+            //}
+        }
+
         private void buttonSTOP_Click(object sender, EventArgs e)
         {
             byte iSlaveNo;
@@ -337,15 +371,17 @@ namespace EziMOTIONTest
                 return;
             }
 
-            iSlaveNo = byte.Parse(textSlaveNo.Text);
+            MECQClass.MECQ_Stop(1, 0, 0);
 
-            nRtn = EziMOTIONPlusRLib.FAS_MoveStop(m_nPortNo, iSlaveNo);
-            if (nRtn != EziMOTIONPlusRLib.FMM_OK)
-            {
-                string strMsg;
-                strMsg = "FAS_MoveStop() \nReturned: " + nRtn.ToString();
-                MessageBox.Show(strMsg, "Function Failed");
-            }
+            //iSlaveNo = byte.Parse(textSlaveNo.Text);
+
+            //nRtn = EziMOTIONPlusRLib.FAS_MoveStop(m_nPortNo, iSlaveNo);
+            //if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+            //{
+            //    string strMsg;
+            //    strMsg = "FAS_MoveStop() \nReturned: " + nRtn.ToString();
+            //    MessageBox.Show(strMsg, "Function Failed");
+            //}
         }
 
         private void buttonMotionTest_Click(object sender, EventArgs e)
@@ -666,21 +702,35 @@ namespace EziMOTIONTest
 
         private void textBoxAccelTime_TextChanged(object sender, EventArgs e)
         {
-            byte iSlaveNo = byte.Parse(textSlaveNo.Text);
-            int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
-            EziMOTIONPlusRLib.FAS_SetParameter(m_nPortNo, iSlaveNo, 3, iAccValue);
+            //byte iSlaveNo = byte.Parse(textSlaveNo.Text);
+            //int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
+            //EziMOTIONPlusRLib.FAS_SetParameter(m_nPortNo, iSlaveNo, 3, iAccValue);
         }
 
         private void textBoxDecelTime_TextChanged(object sender, EventArgs e)
         {
-            byte iSlaveNo = byte.Parse(textSlaveNo.Text);
-            int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
-            EziMOTIONPlusRLib.FAS_SetParameter(m_nPortNo, iSlaveNo, 4, iDecValue);
+            //byte iSlaveNo = byte.Parse(textSlaveNo.Text);
+            //int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
+            //EziMOTIONPlusRLib.FAS_SetParameter(m_nPortNo, iSlaveNo, 4, iDecValue);
         }
 
         private void buttonHome_Click(object sender, EventArgs e)
         {
             MECQClass.MECQ_Set_Zero(1, 0);
+        }
+
+        private void buttonEMS_Click(object sender, EventArgs e)
+        {
+            MECQClass.MECQ_EMS_Stop(1, 0);
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            MECQClass.Read_Motor_Status(1, 0);
+            textBoxDRV.Text = MECQClass.mStatus[1].DRV.ToString();
+            textBoxALM.Text = MECQClass.mStatus[1].ALM.ToString();
+            textBoxHEND.Text = MECQClass.mStatus[1].HEND.ToString();
+            textBoxPOS.Text = MECQClass.mStatus[1].Position.ToString();
         }
     }
 }
