@@ -2518,8 +2518,60 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                //MECQMaster.WriteSingleRegister(slaveID, 0x201E, 3); //3: Home return
-                
+                //第17項為原點方法；方法6為「以扭矩找原點」
+                int nRtn = EziMOTIONPlusRLib.FAS_SetParameter(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 17, 6);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_SetParameter() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
+
+                //第18項為尋找原點的方向；預設是1
+                nRtn = EziMOTIONPlusRLib.FAS_SetParameter(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 18, 1);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_SetParameter() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
+
+                //第19項為找到原點後的offset
+                nRtn = EziMOTIONPlusRLib.FAS_SetParameter(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 19, 400);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_SetParameter() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
+
+                //第25項為運動方向；預設0
+                nRtn = EziMOTIONPlusRLib.FAS_SetParameter(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 25, 1);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_SetParameter() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
+
+                //第27項為原點扭距；預設50%
+                nRtn = EziMOTIONPlusRLib.FAS_SetParameter(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 27, 50);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_SetParameter() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }
+
+                //原點復歸
+                nRtn = EziMOTIONPlusRLib.FAS_MoveOriginSingleAxis(byte.Parse(MECQPort.PortName.Substring(3)), slaveID);
+                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                {
+                    string strMsg;
+                    strMsg = "FAS_MoveOriginSingleAxis() \nReturned: " + nRtn.ToString();
+                    throw new Exception(strMsg);
+                }                
+
                 sendFlag = false;
                 returnStatus = ErrCode.SUCCESS_NO_ERROR;
                 return returnStatus;
