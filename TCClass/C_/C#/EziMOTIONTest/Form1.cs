@@ -75,7 +75,7 @@ namespace EziMOTIONTest
                 XCClass.XC_Open_Com();
 
 
-                //timer1.Enabled = true;
+                timer1.Enabled = true;
 
                 if (false)
                 {

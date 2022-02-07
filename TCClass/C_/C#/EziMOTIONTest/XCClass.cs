@@ -2498,7 +2498,8 @@ namespace yiyi.MotionDefine
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 XCMaster.WriteSingleRegister(slaveID, 0x201E, 3); //3: Home return
-                
+                mStatus[slaveID].HEND = true;
+
                 sendFlag = false;
                 returnStatus = ErrCode.SUCCESS_NO_ERROR;
                 return returnStatus;
@@ -3127,16 +3128,16 @@ namespace yiyi.MotionDefine
                 XC_Get_Enccounter2(cardNum, AxisNum, ref bData);
 
                 //2.讀取驅動軸狀態1005(AlarmStatus)、100D(ErrorStatus)、1001(InpStatus)、1000(ActionStatus)
-                tmp = XCMaster.ReadHoldingRegisters(slaveID, 0x1000, 2);
+                tmp = XCMaster.ReadHoldingRegisters(slaveID, 0x1000, 0x0D + 1);
 
                 //data[0] : AlarmStatus
                 //data[1] : ErrorStatus
                 //data[2] : InpStatus
                 //data[3] : ActionStatus
-                data = new ushort[4]{   XCMaster.ReadHoldingRegisters(slaveID, 0x1005, 1)[0],
-                                        XCMaster.ReadHoldingRegisters(slaveID, 0x100D, 1)[0],
-                                        tmp[1],
-                                        tmp[0]};
+                data = new ushort[4]{   tmp[0x05],
+                                        tmp[0x0D],
+                                        tmp[0x01],
+                                        tmp[0x00]};
 
                 //異常檢查 AlarmStatus
                 if (data[0] != 0) //AlarmStatus
@@ -3148,17 +3149,7 @@ namespace yiyi.MotionDefine
                         Read_Motor_Status_Ng[slaveID] = true;
                     }
                 }
-                else if (   //ErrorStatus
-                            (data[1] == 2) ||  //2: error in upper/lower limit
-                            (data[1] == 3) ||  //3: position error
-                            (data[1] == 4) ||  //4: format error
-                            (data[1] == 5) ||  //5: error in control mode
-                            (data[1] == 7) ||  //7: power coefficient detection is not completed
-                            (data[1] == 8) ||  //8: error in Servo ON/OFF
-                            (data[1] == 9) ||  //9: LOCK signal error
-                            (data[1] == 10) || //10: software limit
-                            (data[1] == 11)    //11: insufficient write permission for parameters                            
-                        )
+                else if (data[1] != 0 )
                 {
                     mStatus[slaveID].ALM = true;
                     if (!Read_Motor_Status_Ng[slaveID])
@@ -3172,19 +3163,6 @@ namespace yiyi.MotionDefine
                     mStatus[slaveID].ALM = false;
                     Read_Motor_Status_Ng[slaveID] = false;
                 }
-
-                if (data[1] == 12)    //驅動軸已曾歸零, 12: origin reset is not completed
-                    mStatus[slaveID].HEND = false;
-                else
-                    mStatus[slaveID].HEND = true;
-
-
-                if (data[2] == 1)   //指定點動作完作 InpStatus
-                                    //0: existing position has not reached the set range
-                                    //1: existing position has reached the set range                                    
-                    mStatus[slaveID].HEND = true;
-                else
-                    mStatus[slaveID].HEND = false;
 
 
                 // 分解狀態-馬達運轉中 ActionStatus
@@ -3232,11 +3210,7 @@ namespace yiyi.MotionDefine
             byte slaveID;
             try
             {
-                //ushort[] data;
-                //long longValue;
-                //Int16 int16Value;
                 ushort[] data;
-
                 slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 if (MotionClass.MotionDefine.simulateFlag && MotionClass.MotionDefine.simulateNoModbusFlag)
@@ -3248,34 +3222,8 @@ namespace yiyi.MotionDefine
                 else
                 {
                     //目前馬達位置 
-                    /*
-                   因為馬達位置的值範圍是-999999~999999(0xFFF0BDC1~0x000F423F),
-                   -999999<->0xFFF0BDC1
-                   -999998<->0xFFF0BDC2
-                    .....     .......
-                   -1     <->0xFFFFFFFF
-                   */
-
-                    //Double dValue = 0;
-                    //data = XCMaster.ReadHoldingRegisters(slaveID, 0x9000, 2);
-                    //UInt32 uint32Value = (UInt32)data[0] << 16;
-                    //uint32Value += (UInt32)data[1];
-                    //if (uint32Value > 0xFFF0BDC1 && uint32Value <= 0xFFFFFFFF)
-                    //{
-                    //    //馬達位置是負的
-                    //    uint32Value = (0xFFFFFFFF - uint32Value );
-                    //    dValue = (Double)(-uint32Value ); //假設是0.01mm
-                    //}
-                    //else
-                    //{   //馬達位置是正的
-                    //    dValue = (Double)(uint32Value )-1; //假設是0.01mm
-                    //}
-
-                    Double dValue = 0;
-                    data = XCMaster.ReadHoldingRegisters(slaveID, 0x100A, 1);  //Encoder position
-                    dValue = (Double)(data[0]);
-                    bData = (int)(dValue); //假設是0.01mm-->轉成um
-
+                    data = XCMaster.ReadHoldingRegisters(slaveID, 0x100A, 2);  //Encoder position
+                    bData = ((data[0] << 16) + data[1]);
 
                     mStatus[slaveID].Position = bData;
                     XC_Cfg[cardNum].BasicFeatures[AxisNum].Pos = bData;
