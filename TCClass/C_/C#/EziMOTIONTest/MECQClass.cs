@@ -345,7 +345,7 @@ namespace yiyi.MotionDefine
                     ////開啟通信埠
                     //MECQPort.Open();
 
-                    int nRtn = EziMOTIONPlusRLib.FAS_Connect(byte.Parse(MECQPort.PortName.Substring(3)), (uint)MECQPort.BaudRate);                    
+                    int nRtn = EziMOTIONPlusRLib.FAS_Connect(byte.Parse(MECQPort.PortName.Substring(3)), (uint)MECQPort.BaudRate);
                     if (nRtn == 0)
                     {
                         string strMsg;
@@ -2210,7 +2210,7 @@ namespace yiyi.MotionDefine
 
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                
+
                 int nRtn = EziMOTIONPlusRLib.FAS_ServoEnable(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 1);
                 if (nRtn != EziMOTIONPlusRLib.FMM_OK)
                 {
@@ -2250,7 +2250,7 @@ namespace yiyi.MotionDefine
                 sendFlag = true;
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                
+
                 int nRtn = EziMOTIONPlusRLib.FAS_ServoEnable(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, 0);
                 if (nRtn != EziMOTIONPlusRLib.FMM_OK)
                 {
@@ -2570,7 +2570,7 @@ namespace yiyi.MotionDefine
                     string strMsg;
                     strMsg = "FAS_MoveOriginSingleAxis() \nReturned: " + nRtn.ToString();
                     throw new Exception(strMsg);
-                }                
+                }
 
                 sendFlag = false;
                 returnStatus = ErrCode.SUCCESS_NO_ERROR;
@@ -2606,6 +2606,113 @@ namespace yiyi.MotionDefine
                 sendFlag = false;
                 string strErrMsg = string.Format("Table_Home_ChkComplete() falied with error code : {0}", ex.Message);
                 MotionClass.WriteEventLog(strErrMsg);
+                return returnStatus;
+            }
+        }
+        #endregion
+
+        #region 軸卡推力絕對運動->變動參數
+        static bool ngFlag_MECQ_Par_Table_Push_GO = false;
+        public static int MECQ_Par_Table_Push_GO(Byte cardNum, UInt16 AxisNum, MotionClass.MySpeedPar Tar_Par, MotionClass.MySpeedPar Push_Par)
+        {
+            int returnStatus = -99; //異常碼 -99
+
+            uint V = Tar_Par.V;
+            float A = Tar_Par.A;
+            float D = Tar_Par.D;
+            int Tar_Pos = Tar_Par.P;
+
+            uint Push_Speed = Push_Par.V;
+            int Push_Pos = Push_Par.P;
+            ushort Push_TorqeRatio = (ushort)(Push_Par.AO & 0xFFFF);
+
+            int movePluse = 0;
+
+            try
+            {
+                if (MotionClass.MotionDefine.simulateFlag && MotionClass.MotionDefine.simulateNoModbusFlag)
+                {
+                    MECQ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = (int)(Tar_Pos * MECQ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
+                    returnStatus = ErrCode.SUCCESS_NO_ERROR;
+                }
+                else
+                {
+                    if (sendFlag)
+                    {
+                        if (MECQ_Idle_Wait())
+                            return -98;//WAIT
+                    }
+                    sendFlag = true;
+
+                    byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
+
+                    //檢查軸停止
+                    if (!mStatus[slaveID].DRV)
+                    {
+                        //檢查前往位置是否超出軟体極限
+                        int cmdPls = (int)(Tar_Pos);
+                        returnStatus = MECQ_Check_Limit(cardNum, AxisNum, cmdPls);
+                        if (returnStatus == 0)
+                        {
+                            //是否已回home過
+                            if (MECQ_Cfg[cardNum].BasicFeatures[AxisNum].bHomOK == true)
+                            {
+                                movePluse = (int)(Tar_Pos * MECQ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
+
+                                int Target_Pos = movePluse;
+                                uint Speed = V;
+                                ushort Acc_Speed = (ushort)A;
+                                ushort Dec_Speed = (ushort)D;
+
+
+
+                                int nRtn = EziMOTIONPlusRLib.FAS_MovePush(byte.Parse(MECQPort.PortName.Substring(3)),
+                                                                            slaveID, 0, Speed, Target_Pos, Acc_Speed, Dec_Speed,    // 1.位置模式移動: 初速,目標速度,加速度,減速度
+                                                                            Push_TorqeRatio, Push_Speed, Push_Pos, 0);              // 2.推力模式移動: 推力比,推力移動速度,推力目標位置,推力模式(0為停止模式,1~10000表示過了推力目標位置之後所需要移動的距離,單位pulse)
+
+                                if (nRtn != EziMOTIONPlusRLib.FMM_OK)
+                                {
+                                    string strMsg;
+                                    strMsg = "FAS_MovePush() \nReturned: " + nRtn.ToString();
+                                    throw new Exception(strMsg);
+                                }
+
+                                sendFlag = false;
+                                MECQ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
+                                ngFlag_MECQ_Table_GO = false;
+                            }
+                            else
+                            {
+                                sendFlag = false;
+                                returnStatus = -1002;
+                            }
+                        }
+                        else
+                        {
+                            sendFlag = false;
+                            if (!ngFlag_MECQ_Par_Table_Push_GO)
+                            {
+                                ngFlag_MECQ_Par_Table_Push_GO = true;
+                                string strErrMsg = "MECQ_Par_Table_GO() falied with Check_Limit error";
+                                MotionClass.WriteEventLog(strErrMsg);
+                            }
+                            return returnStatus;
+                        }
+                    }
+                }
+                sendFlag = false;
+                return returnStatus;
+
+            }
+            catch (Exception ex)
+            {
+                sendFlag = false;
+                if (!ngFlag_MECQ_Par_Table_Push_GO)
+                {
+                    ngFlag_MECQ_Par_Table_Push_GO = true;
+                    string strErrMsg = string.Format("MECQ_Par_Table_GO() falied with error code : {0}", ex.Message);
+                    MotionClass.WriteEventLog(strErrMsg);
+                }
                 return returnStatus;
             }
         }
@@ -3083,7 +3190,7 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
                 //指定馬達NO=1
-                
+
                 int nRtn = EziMOTIONPlusRLib.FAS_MoveStop(byte.Parse(MECQPort.PortName.Substring(3)), slaveID);
                 if (nRtn != EziMOTIONPlusRLib.FMM_OK)
                 {
@@ -3091,7 +3198,7 @@ namespace yiyi.MotionDefine
                     strMsg = "FAS_MoveStop() \nReturned: " + nRtn.ToString();
                     throw new Exception(strMsg);
                 }
-               
+
                 //sendFlag = false;
                 returnStatus = 0;
                 return returnStatus;
@@ -3163,7 +3270,7 @@ namespace yiyi.MotionDefine
         public static int Read_Motor_Status(Byte cardNum, UInt16 AxisNum)
         {
             int returnStatus = -3; //異常碼 -3            
-            ushort[] data,tmp;
+            ushort[] data, tmp;
 
             try
             {
@@ -3182,7 +3289,7 @@ namespace yiyi.MotionDefine
                 MECQ_Get_Enccounter2(cardNum, AxisNum, ref bData);
 
                 //2.讀取驅動軸狀態 FAS_GetAxisStatus
-                uint axisStatus = 0;                
+                uint axisStatus = 0;
                 int nRtn = EziMOTIONPlusRLib.FAS_GetAxisStatus(byte.Parse(MECQPort.PortName.Substring(3)), slaveID, ref axisStatus);
                 if (nRtn != EziMOTIONPlusRLib.FMM_OK)
                 {
@@ -3197,10 +3304,10 @@ namespace yiyi.MotionDefine
                     mStatus[slaveID].ALM = true;
                     if (!Read_Motor_Status_Ng[slaveID])
                     {
-                        MotionClass.WriteEventLog(slaveID.ToString() + "FAS_GetAxisStatus()--->" + axisStatus.ToString());                                                
+                        MotionClass.WriteEventLog(slaveID.ToString() + "FAS_GetAxisStatus()--->" + axisStatus.ToString());
                         Read_Motor_Status_Ng[slaveID] = true;
                     }
-                }                
+                }
                 else
                 {
                     mStatus[slaveID].ALM = false;
@@ -3287,7 +3394,7 @@ namespace yiyi.MotionDefine
                         strMsg = "FAS_GetActualPos() \nReturned: " + nRtn.ToString();
                         throw new Exception(strMsg);
                     }
-                  
+
                     bData = pos; //假設是0.01mm-->轉成um
 
 
