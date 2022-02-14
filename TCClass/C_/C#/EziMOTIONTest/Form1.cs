@@ -562,9 +562,12 @@ namespace EziMOTIONTest
             uint lVelocity = uint.Parse(textSpeed.Text);
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
+            int pushPos = int.Parse(textPushPos.Text);
+            uint pushSpd = uint.Parse(textPushSpd.Text);
+            uint pushRatio = uint.Parse(textPushRat.Text);
             MECQClass.MECQ_Par_Table_Push_GO(1, 0, 
                         new MotionClass.MySpeedPar() { P = lPosition, V = lVelocity, A = iAccValue, D = iDecValue },
-                        new MotionClass.MySpeedPar() { P = 1000, V = 33333, AO = 90 }); //P:推力目標位置,V推力移動速度(1~33333pps),AO推力比(20%~90%)
+                        new MotionClass.MySpeedPar() { P = pushPos, V = pushSpd, AO = pushRatio }); //P:推力目標位置,V推力移動速度(1~33333pps),AO推力比(20%~90%)
         }
     }
 }

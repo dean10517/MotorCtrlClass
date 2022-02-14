@@ -80,11 +80,11 @@
             this.label10 = new System.Windows.Forms.Label();
             this.buttonTabParABSPush = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textPushPos = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textPushSpd = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textPushRat = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -645,13 +645,13 @@
             this.label11.TabIndex = 4;
             this.label11.Text = "PushPos";
             // 
-            // textBox1
+            // textPushPos
             // 
-            this.textBox1.Location = new System.Drawing.Point(117, 38);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(108, 26);
-            this.textBox1.TabIndex = 5;
+            this.textPushPos.Location = new System.Drawing.Point(117, 38);
+            this.textPushPos.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textPushPos.Name = "textPushPos";
+            this.textPushPos.Size = new System.Drawing.Size(108, 26);
+            this.textPushPos.TabIndex = 5;
             // 
             // label12
             // 
@@ -663,13 +663,13 @@
             this.label12.TabIndex = 6;
             this.label12.Text = "PushSpeed";
             // 
-            // textBox2
+            // textPushSpd
             // 
-            this.textBox2.Location = new System.Drawing.Point(117, 74);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(108, 26);
-            this.textBox2.TabIndex = 7;
+            this.textPushSpd.Location = new System.Drawing.Point(117, 74);
+            this.textPushSpd.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textPushSpd.Name = "textPushSpd";
+            this.textPushSpd.Size = new System.Drawing.Size(108, 26);
+            this.textPushSpd.TabIndex = 7;
             // 
             // label13
             // 
@@ -681,23 +681,23 @@
             this.label13.TabIndex = 9;
             this.label13.Text = "PushRatio";
             // 
-            // textBox3
+            // textPushRat
             // 
-            this.textBox3.Location = new System.Drawing.Point(117, 110);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(108, 26);
-            this.textBox3.TabIndex = 10;
-            this.textBox3.TextChanged += new System.EventHandler(this.textBoxAccelTime_TextChanged);
+            this.textPushRat.Location = new System.Drawing.Point(117, 110);
+            this.textPushRat.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textPushRat.Name = "textPushRat";
+            this.textPushRat.Size = new System.Drawing.Size(108, 26);
+            this.textPushRat.TabIndex = 10;
+            this.textPushRat.TextChanged += new System.EventHandler(this.textBoxAccelTime_TextChanged);
             // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.label11);
             this.groupBox4.Controls.Add(this.buttonTabParABSPush);
-            this.groupBox4.Controls.Add(this.textBox1);
+            this.groupBox4.Controls.Add(this.textPushPos);
             this.groupBox4.Controls.Add(this.label12);
-            this.groupBox4.Controls.Add(this.textBox2);
-            this.groupBox4.Controls.Add(this.textBox3);
+            this.groupBox4.Controls.Add(this.textPushSpd);
+            this.groupBox4.Controls.Add(this.textPushRat);
             this.groupBox4.Controls.Add(this.label13);
             this.groupBox4.Location = new System.Drawing.Point(295, 210);
             this.groupBox4.Name = "groupBox4";
@@ -802,11 +802,11 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button buttonTabParABSPush;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textPushPos;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textPushSpd;
         private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textPushRat;
         private System.Windows.Forms.GroupBox groupBox4;
     }
 }
