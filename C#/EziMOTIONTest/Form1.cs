@@ -71,8 +71,8 @@ namespace EziMOTIONTest
 
                 //int a = EziMOTIONPlusRLib.FAS_Connect(m_nPortNo, dwBaud);
                 
-                MECQClass.MECQ_Setup_Com(new SerialPort("COM" + m_nPortNo.ToString(), (int)dwBaud));
-                MECQClass.MECQ_Open_Com();
+                TLClass.TL_Setup_Com(new SerialPort("COM" + m_nPortNo.ToString(), (int)dwBaud));
+                TLClass.TL_Open_Com();
 
 
                 timer1.Enabled = true;
@@ -135,7 +135,7 @@ namespace EziMOTIONTest
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
 
-            MECQClass.MECQ_Relative_GO(1, 0, lPosition * -1);
+            TLClass.TL_Relative_GO(1, 0, lPosition * -1);
 
             //nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisIncPos(m_nPortNo, iSlaveNo, lPosition * -1, lVelocity);
             //if (nRtn != EziMOTIONPlusRLib.FMM_OK)
@@ -169,7 +169,7 @@ namespace EziMOTIONTest
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
 
-            MECQClass.MECQ_Relative_GO(1, 0, lPosition);
+            TLClass.TL_Relative_GO(1, 0, lPosition);
 
             //nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisIncPos(m_nPortNo, iSlaveNo, lPosition, lVelocity);
             //if (nRtn != EziMOTIONPlusRLib.FMM_OK)
@@ -186,7 +186,7 @@ namespace EziMOTIONTest
             uint lVelocity = uint.Parse(textSpeed.Text);
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
-            MECQClass.MECQ_Relative_Par_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition, V = lVelocity, A = iAccValue, D = iDecValue });
+            TLClass.TL_Relative_Par_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition, V = lVelocity, A = iAccValue, D = iDecValue });
         }
 
         private void buttonRelateParDEC_Click(object sender, EventArgs e)
@@ -195,7 +195,7 @@ namespace EziMOTIONTest
             uint lVelocity = uint.Parse(textSpeed.Text);
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
-            MECQClass.MECQ_Relative_Par_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition * -1, V = lVelocity, A = iAccValue, D = iDecValue });
+            TLClass.TL_Relative_Par_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition * -1, V = lVelocity, A = iAccValue, D = iDecValue });
         }
 
         private void buttonManINC_Click(object sender, EventArgs e)
@@ -204,7 +204,7 @@ namespace EziMOTIONTest
             uint lVelocity = uint.Parse(textSpeed.Text);
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
-            MECQClass.MECQ_Manual_Rel_GO(1, 0, lPosition);
+            TLClass.TL_Manual_Rel_GO(1, 0, lPosition);
         }
 
         private void buttonManDEC_Click(object sender, EventArgs e)
@@ -213,7 +213,7 @@ namespace EziMOTIONTest
             uint lVelocity = uint.Parse(textSpeed.Text);
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
-            MECQClass.MECQ_Relative_GO(1, 0, lPosition * -1);
+            TLClass.TL_Relative_GO(1, 0, lPosition * -1);
         }
 
         private void buttonManParINC_Click(object sender, EventArgs e)
@@ -222,7 +222,7 @@ namespace EziMOTIONTest
             uint lVelocity = uint.Parse(textSpeed.Text);
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
-            MECQClass.MECQ_Manual_Rel_Par_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition, V = lVelocity, A = iAccValue, D = iDecValue });
+            TLClass.TL_Manual_Rel_Par_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition, V = lVelocity, A = iAccValue, D = iDecValue });
         }
 
         private void buttonManParDEC_Click(object sender, EventArgs e)
@@ -231,7 +231,7 @@ namespace EziMOTIONTest
             uint lVelocity = uint.Parse(textSpeed.Text);
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
-            MECQClass.MECQ_Manual_Rel_Par_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition * -1, V = lVelocity, A = iAccValue, D = iDecValue });
+            TLClass.TL_Manual_Rel_Par_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition * -1, V = lVelocity, A = iAccValue, D = iDecValue });
         }
 
         private void buttonTab_Click(object sender, EventArgs e)
@@ -257,7 +257,7 @@ namespace EziMOTIONTest
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
 
-            MECQClass.MECQ_Table_GO(1, 0, lPosition);
+            TLClass.TL_Table_GO(1, 0, lPosition);
 
             //nRtn = EziMOTIONPlusRLib.FAS_MoveSingleAxisAbsPos(m_nPortNo, iSlaveNo, lPosition, lVelocity);
             //if (nRtn != EziMOTIONPlusRLib.FMM_OK)
@@ -274,7 +274,7 @@ namespace EziMOTIONTest
             uint lVelocity = uint.Parse(textSpeed.Text);
             int iAccValue = Convert.ToInt16(textBoxAccelTime.Text);
             int iDecValue = Convert.ToInt16(textBoxDecelTime.Text);
-            MECQClass.MECQ_Par_Table_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition, V = lVelocity, A = iAccValue, D = iDecValue });
+            TLClass.TL_Par_Table_GO(1, 0, new MotionClass.MySpeedPar() { P = lPosition, V = lVelocity, A = iAccValue, D = iDecValue });
         }
 
         private void buttonAlarmReset_Click(object sender, EventArgs e)
@@ -291,7 +291,7 @@ namespace EziMOTIONTest
                 return;
             }
 
-            MECQClass.MECQ_Alarm_Clear(1, 0);
+            TLClass.TL_Alarm_Clear(1, 0);
 
             //iSlaveNo = byte.Parse(textSlaveNo.Text);
 
@@ -320,8 +320,8 @@ namespace EziMOTIONTest
 
             iSlaveNo = byte.Parse(textSlaveNo.Text);
 
-            MECQClass.MECQ_CreateXML();
-            MECQClass.MECQ_Servo_ON(1, 0);
+            TLClass.TL_CreateXML();
+            TLClass.TL_Servo_ON(1, 0);
 
             //nRtn = EziMOTIONPlusRLib.FAS_ServoEnable(m_nPortNo, iSlaveNo, 1);
             //if (nRtn != EziMOTIONPlusRLib.FMM_OK)
@@ -347,7 +347,7 @@ namespace EziMOTIONTest
                 return;
             }
 
-            MECQClass.MECQ_Servo_OFF(1, 0);
+            TLClass.TL_Servo_OFF(1, 0);
 
             //nRtn = EziMOTIONPlusRLib.FAS_ServoEnable(m_nPortNo, iSlaveNo, 1);
             //if (nRtn != EziMOTIONPlusRLib.FMM_OK)
@@ -372,7 +372,7 @@ namespace EziMOTIONTest
                 return;
             }
 
-            MECQClass.MECQ_Stop(1, 0, 0);
+            TLClass.TL_Stop(1, 0, 0);
 
             //iSlaveNo = byte.Parse(textSlaveNo.Text);
 
@@ -538,22 +538,22 @@ namespace EziMOTIONTest
 
         private void buttonHome_Click(object sender, EventArgs e)
         {
-            MECQClass.MECQ_Home_Start(1, 0);
-            MECQClass.MECQ_Set_Zero(1, 0);
+            TLClass.TL_Home_Start(1, 0);
+            TLClass.TL_Set_Zero(1, 0);
         }
 
         private void buttonEMS_Click(object sender, EventArgs e)
         {
-            MECQClass.MECQ_EMS_Stop(1, 0);
+            TLClass.TL_EMS_Stop(1, 0);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            MECQClass.Read_Motor_Status(1, 0);
-            textBoxDRV.Text = MECQClass.mStatus[1].DRV.ToString();
-            textBoxALM.Text = MECQClass.mStatus[1].ALM.ToString();
-            textBoxHEND.Text = MECQClass.mStatus[1].HEND.ToString();
-            textBoxPOS.Text = MECQClass.mStatus[1].Position.ToString();
+            TLClass.Read_Motor_Status(1, 0);
+            textBoxDRV.Text = TLClass.mStatus[1].DRV.ToString();
+            textBoxALM.Text = TLClass.mStatus[1].ALM.ToString();
+            textBoxHEND.Text = TLClass.mStatus[1].HEND.ToString();
+            textBoxPOS.Text = TLClass.mStatus[1].Position.ToString();
         }
 
         private void buttonTabParABSPush_Click(object sender, EventArgs e)
@@ -565,7 +565,7 @@ namespace EziMOTIONTest
             int pushPos = int.Parse(textPushPos.Text);
             uint pushSpd = uint.Parse(textPushSpd.Text);
             uint pushRatio = uint.Parse(textPushRat.Text);
-            MECQClass.MECQ_Par_Table_Push_GO(1, 0, 
+            MECQClass.MECQ_Par_Table_Push_GO(1, 0,
                         new MotionClass.MySpeedPar() { P = lPosition, V = lVelocity, A = iAccValue, D = iDecValue },
                         new MotionClass.MySpeedPar() { P = pushPos, V = pushSpd, AO = pushRatio }); //P:推力目標位置,V推力移動速度(1~33333pps),AO推力比(20%~90%)
         }

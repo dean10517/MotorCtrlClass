@@ -3,6 +3,7 @@ using PCI.PS400;
 using System;
 using System.Diagnostics;
 using System.IO.Ports;
+using System.Text;
 using System.Threading;
 using System.Xml;
 
@@ -12,16 +13,10 @@ namespace yiyi.MotionDefine
     {
 
         #region 共用變數宣告
+        
+        
+        private static SerialPort TLPort = new SerialPort();             //宣告TL通信埠
 
-        static ModbusSerialMaster XCMaster;
-        //private byte slaveID = 1;       //站別
-        private static SerialPort XCPort = new SerialPort();             //宣告XC通信埠
-
-
-
-
-
-        static int CurrentMotor;
 
         public static bool sendFlag = false;     //傳送旗標
 
@@ -314,7 +309,7 @@ namespace yiyi.MotionDefine
         {
             Int16 nErrCode = 0;
 
-            XCPort = serialPort;
+            TLPort = serialPort;
 
             return nErrCode; ;
         }
@@ -338,14 +333,11 @@ namespace yiyi.MotionDefine
                     TL_Init();
 
                     //2.先關閉再開啟
-                    if (XCPort.IsOpen)
-                        XCPort.Close();
+                    if (TLPort.IsOpen)
+                        TLPort.Close();
 
                     //開啟通信埠
-                    XCPort.Open();
-
-                    XCMaster = ModbusSerialMaster.CreateAscii(XCPort);                    
-                    XCMaster.Transport.ReadTimeout = 500;
+                    TLPort.Open();
                 }
                 return nErrCode;
             }
@@ -448,7 +440,7 @@ namespace yiyi.MotionDefine
             String strErrMsg;
             try
             {
-                XCPort.Close();
+                TLPort.Close();
                 return nErrCode;
             }
             catch (Exception ex)
@@ -737,11 +729,11 @@ namespace yiyi.MotionDefine
             {
                 // Configuration for BasicFeatures
                 TL_Cfg[nCardID].BasicFeatures[nAxisIdx].SV = 10000;
-                TL_Cfg[nCardID].BasicFeatures[nAxisIdx].V = 50000;
+                TL_Cfg[nCardID].BasicFeatures[nAxisIdx].V = 4000;
                 TL_Cfg[nCardID].BasicFeatures[nAxisIdx].HSV = 5000;
                 TL_Cfg[nCardID].BasicFeatures[nAxisIdx].HV = 8000;
-                TL_Cfg[nCardID].BasicFeatures[nAxisIdx].A = 80000;
-                TL_Cfg[nCardID].BasicFeatures[nAxisIdx].D = 80000;
+                TL_Cfg[nCardID].BasicFeatures[nAxisIdx].A = 1000;
+                TL_Cfg[nCardID].BasicFeatures[nAxisIdx].D = 800;
                 TL_Cfg[nCardID].BasicFeatures[nAxisIdx].SA = 80000;
                 TL_Cfg[nCardID].BasicFeatures[nAxisIdx].SD = 80000;
                 TL_Cfg[nCardID].BasicFeatures[nAxisIdx].K = 500000;
@@ -1701,8 +1693,8 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                XCMaster.WriteSingleRegister(slaveID, 0x201E, 9); //9: Emergency stop
-
+                //XCMaster.WriteSingleRegister(slaveID, 0x201E, 9); //9: Emergency stop
+                TLPort.Write("b" + "\r\n");
 
                 //sendFlag = false;
 
@@ -2197,9 +2189,7 @@ namespace yiyi.MotionDefine
                 sendFlag = true;
 
 
-                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-
-                XCMaster.WriteSingleRegister(slaveID, 0x2011, 0);  //0: Servo is ON; 1: Servo is OFF
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);                
 
                 sendFlag = false;
 
@@ -2231,9 +2221,7 @@ namespace yiyi.MotionDefine
                 }
                 sendFlag = true;
 
-                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-
-                XCMaster.WriteSingleRegister(slaveID, 0x2011, 1);  //0: Servo is ON; 1: Servo is OFF
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);                
 
                 sendFlag = false;
 
@@ -2317,22 +2305,15 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;
+                                
+                                //速度設定                                
+                                TLPort.Write(":SI" + Acc_Speed.ToString() + "," + Speed.ToString() + "," + Dec_Speed.ToString() + "\r\n");
 
-                                //速度設定
-                                data = new ushort[4];
-                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                                //延遲
+                                Thread.Sleep(2400);
 
-                                //位置設定
-                                data = new ushort[2];
-                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                                data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data); //設定位置
-                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //執行
+                                //位置設定                                
+                                TLPort.Write(":X" + Target_Pos.ToString() + "\r\n");
 
 
                                 sendFlag = false;
@@ -2424,22 +2405,15 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;
-
                                 //速度設定
-                                data = new ushort[4];
-                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                                byte[] data = Encoding.ASCII.GetBytes(":SI" + Acc_Speed.ToString() + "," + Speed.ToString() + "," + Dec_Speed.ToString() + "\r\n");
+                                TLPort.Write(data,0, data.Length);
 
-                                //位置設定
-                                data = new ushort[2];
-                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                                data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x2002, data); //設定位置
-                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //執行
+                                //延遲
+                                Thread.Sleep(2400);
+
+                                //位置設定                                
+                                TLPort.Write(":X"+Target_Pos.ToString()+"\r\n");                                
 
                                 sendFlag = false;
                                 TL_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
@@ -2497,7 +2471,8 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                XCMaster.WriteSingleRegister(slaveID, 0x201E, 3); //3: Home return
+                TLPort.Write(":SP0,0,0" + "\r\n"); //歸零座標
+
                 mStatus[slaveID].HEND = true;
 
                 sendFlag = false;
@@ -2596,22 +2571,15 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;
+                                //速度設定                                
+                                TLPort.Write(":SI" + Acc_Speed.ToString() + "," + Speed.ToString() + "," + Dec_Speed.ToString() + "\r\n");
 
-                                //速度設定
-                                data = new ushort[4];
-                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                                //延遲
+                                Thread.Sleep(2400);
 
-                                //位置設定
-                                data = new ushort[2];
-                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                                data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
-                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
+                                //位置設定                                
+                                TLPort.Write(":U" + Target_Pos.ToString() + "\r\n");
+
 
                                 TL_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
                                 sendFlag = false;
@@ -2708,23 +2676,15 @@ namespace yiyi.MotionDefine
                                 uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
+                                
+                                //速度設定                                
+                                TLPort.Write(":SI" + Acc_Speed.ToString() + "," + Speed.ToString() + "," + Dec_Speed.ToString() + "\r\n");
 
-                                ushort[] data;                               
+                                //延遲
+                                Thread.Sleep(2400);
 
-                                //速度設定
-                                data = new ushort[4];
-                                data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                                data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                                data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                                data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
-
-                                //位置設定
-                                data = new ushort[2];
-                                data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                                data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
-                                XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
+                                //位置設定                                
+                                TLPort.Write(":U" + Target_Pos.ToString() + "\r\n");
 
                                 sendFlag = false;
                                 TL_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
@@ -2823,20 +2783,14 @@ namespace yiyi.MotionDefine
 
                             ushort[] data;
 
-                            //速度設定
-                            data = new ushort[4];
-                            data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                            data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                            data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                            data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                            XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                            //速度設定                                
+                            TLPort.Write(":SI" + Acc_Speed.ToString() + "," + Speed.ToString() + "," + Dec_Speed.ToString() + "\r\n");
 
-                            //位置設定
-                            data = new ushort[2];
-                            data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                            data[1] = (ushort)(Target_Pos & 0xFFFF);
-                            XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
-                            XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
+                            //延遲
+                            Thread.Sleep(2400);
+
+                            //位置設定                                
+                            TLPort.Write(":U" + Target_Pos.ToString() + "\r\n");
 
                             sendFlag = false;
                             ngFlag_TL_Manual_Rel_Par_GO = false;
@@ -2934,20 +2888,14 @@ namespace yiyi.MotionDefine
 
                             ushort[] data;
 
-                            //速度設定
-                            data = new ushort[4];
-                            data[0] = (ushort)((Speed >> 16) & 0xFFFF);  //0802H HighSpeed 運轉時最高速設定(pps)額定最高上限速度
-                            data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
-                            data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
-                            data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                            XCMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                            //速度設定                                
+                            TLPort.Write(":SI" + Acc_Speed.ToString() + "," + Speed.ToString() + "," + Dec_Speed.ToString() + "\r\n");
 
-                            //位置設定
-                            data = new ushort[2];
-                            data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
-                            data[1] = (ushort)(Target_Pos & 0xFFFF);
-                            XCMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
-                            XCMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
+                            //延遲
+                            Thread.Sleep(2400);
+
+                            //位置設定                                
+                            TLPort.Write(":U" + Target_Pos.ToString() + "\r\n");
 
                             sendFlag = false;
                             ngFlag_TL_Manual_Rel_GO = false;
@@ -3026,18 +2974,9 @@ namespace yiyi.MotionDefine
                 //    sendFlag = true;
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                //指定馬達NO=1
 
-                if (Mode == 1)
-                {
-                    //XCMaster.WriteSingleCoil(slaveID, 0x042C, true);     //立即停止
-                    XCMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop                                                                          
-                }
-                else
-                {
-                    //XCMaster.WriteSingleCoil(slaveID, 0x042C, true);     //減速停止
-                    XCMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop
-                }
+                TLPort.Write("b" + "\r\n");
+
                 //sendFlag = false;
                 returnStatus = 0;
                 return returnStatus;
@@ -3123,54 +3062,31 @@ namespace yiyi.MotionDefine
 
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
+
                 //1.讀取軸位置
                 int bData = 0;
                 TL_Get_Enccounter2(cardNum, AxisNum, ref bData);
 
-                //2.讀取驅動軸狀態1005(AlarmStatus)、100D(ErrorStatus)、1001(InpStatus)、1000(ActionStatus)
-                tmp = XCMaster.ReadHoldingRegisters(slaveID, 0x1000, 0x0D + 1);
+                //2.讀取馬達狀態
+                TLPort.Write("r" + "\r\n");
 
-                //data[0] : AlarmStatus
-                //data[1] : ErrorStatus
-                //data[2] : InpStatus
-                //data[3] : ActionStatus
-                data = new ushort[4]{   tmp[0x05],
-                                        tmp[0x0D],
-                                        tmp[0x01],
-                                        tmp[0x00]};
-
-                //異常檢查 AlarmStatus
-                if (data[0] != 0) //AlarmStatus
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                while (sw.ElapsedMilliseconds < 100)
                 {
-                    mStatus[slaveID].ALM = true;
-                    if (!Read_Motor_Status_Ng[slaveID])
+                    Thread.Sleep(10);
+                    int n = TLPort.BytesToRead;
+                    if (n > 0)
                     {
-                        MotionClass.WriteEventLog(slaveID.ToString() + "1005--->" + data[0].ToString());                                                
-                        Read_Motor_Status_Ng[slaveID] = true;
+                        string s = TLPort.ReadExisting();
+                        if (s == "L")
+                            mStatus[slaveID].DRV = false;
+                        else if (s == ".")
+                            mStatus[slaveID].DRV = true;                        
+
+                        break;
                     }
                 }
-                else if (data[1] != 0 )
-                {
-                    mStatus[slaveID].ALM = true;
-                    if (!Read_Motor_Status_Ng[slaveID])
-                    {                        
-                        MotionClass.WriteEventLog(slaveID.ToString() + "100D--->" + data[1].ToString());
-                        Read_Motor_Status_Ng[slaveID] = true;
-                    }
-                }
-                else
-                {
-                    mStatus[slaveID].ALM = false;
-                    Read_Motor_Status_Ng[slaveID] = false;
-                }
-
-
-                // 分解狀態-馬達運轉中 ActionStatus
-                if (data[3] == 1)   //0: Stop, 1: Working, 2: Abnormal stop                                    
-                    mStatus[slaveID].DRV = true;
-                else
-                    mStatus[slaveID].DRV = false;
-
 
                 //檢查軟体正負極限
                 int returnSLFlag = TL_Check_Limit(cardNum, AxisNum, mStatus[slaveID].Position);
@@ -3222,8 +3138,27 @@ namespace yiyi.MotionDefine
                 else
                 {
                     //目前馬達位置 
-                    data = XCMaster.ReadHoldingRegisters(slaveID, 0x100A, 2);  //Encoder position
-                    bData = ((data[0] << 16) + data[1]);
+                    TLPort.Write("a" + "\r\n");
+
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+                    while (sw.ElapsedMilliseconds < 100)
+                    {
+                        Thread.Sleep(10);
+                        int n = TLPort.BytesToRead;
+                        if (n > 0)
+                        {
+                            string pos = TLPort.ReadLine().Split(',')[0];
+                            pos = pos.Substring(1);
+                            int.TryParse(pos, out int pos_X);
+                            bData = pos_X;
+                            break;
+                        }
+                    }
+                    
+                    
+                    //data = XCMaster.ReadHoldingRegisters(slaveID, 0x100A, 2);  //Encoder position
+                    //bData = ((data[0] << 16) + data[1]);
 
                     mStatus[slaveID].Position = bData;
                     TL_Cfg[cardNum].BasicFeatures[AxisNum].Pos = bData;
@@ -3261,7 +3196,7 @@ namespace yiyi.MotionDefine
                     sendFlag = true;
 
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                    XCMaster.WriteSingleRegister(slaveID, 0x201E, 6);  //6: Alarm reset
+                    
 
                     sendFlag = false;
                     returnStatus = ErrCode.SUCCESS_NO_ERROR;
