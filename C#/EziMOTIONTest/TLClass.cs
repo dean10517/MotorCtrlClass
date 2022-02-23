@@ -1693,10 +1693,7 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                //XCMaster.WriteSingleRegister(slaveID, 0x201E, 9); //9: Emergency stop
                 TLPort.Write("b" + "\r\n");
-
-                //sendFlag = false;
 
                 TL_Cfg[cardNum].BasicFeatures[AxisNum].bHomOK = false;
                 sendFlag = false;
