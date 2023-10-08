@@ -1,0 +1,1148 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>omrlib</name>
+    </assembly>
+    <members>
+        <member name="T:Omrlib.Communication.ModbusInfo.ExceptionCode">
+            <summary>
+            Exception code(Exception response from the driver)
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ExceptionCode.NOERROR">
+            <summary>
+            No error
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ExceptionCode.INVALID_FUNCTION">
+            <summary>
+            The process could not be executed because the function code was invalid.
+            <list type="bullet">
+            <item><description>The function code is not supported.</description></item>
+            <item><description>The sub-function code for diagnosis (08h) is other than 00h.</description></item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ExceptionCode.INVALID_DATAADDRESS">
+            <summary>
+            The process could not be executed because the data address was invalid.
+            <list type="bullet">
+            <item><description>The address is not supported (other than 0000h to 1FFFh).</description></item>
+            <item><description>Register address and number of registers are 2000h or more in total.</description></item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ExceptionCode.INVALID_DATA">
+            <summary>
+            The process could not be executed because the data was invalid.
+            <list type="bullet">
+            <item><description>The number of registers is 0 or more than 17.</description></item>
+            <item><description>The number of bytes is other than twice the number of registers.</description></item>
+            <item><description>The data length is outside the specified range.</description></item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ExceptionCode.SLAVE_ERROR">
+            <summary>
+            The process could not be executed because an error occurred at the slave.
+            <list type="bullet">
+            <item><description>Downloading, initializing or teaching function is in progress using the OPX-2A</description></item>
+            <item><description>Downloading or initialization is in progress using the MEXE02</description></item>
+            <item><description>Internal processing was in progress. (S-BSY is ON.)</description></item>
+            <item><description>An EEPROM error alarm was present.</description></item>
+            <item><description>Outside the parameter setting range</description></item>
+            <item><description>Command execute disable</description></item>
+            </list>
+            </summary>
+        </member>
+        <member name="T:Omrlib.Communication.ModbusInfo.FrameInfo">
+            <summary>
+            Information of the frame
+            </summary>
+        </member>
+        <member name="M:Omrlib.Communication.ModbusInfo.FrameInfo.Frame">
+            <summary>
+            Get the frame.
+            </summary>
+            <returns>Frame</returns>
+        </member>
+        <member name="P:Omrlib.Communication.ModbusInfo.FrameInfo.SlaveAddress">
+            <summary>
+            Slave Address
+            </summary>
+        </member>
+        <member name="P:Omrlib.Communication.ModbusInfo.FrameInfo.FunctionCode">
+            <summary>
+            Function Code
+            </summary>
+        </member>
+        <member name="T:Omrlib.Communication.ModbusInfo.SendReceiveData">
+            <summary>
+            Data transmission and reception
+            </summary>
+        </member>
+        <member name="M:Omrlib.Communication.ModbusInfo.SendReceiveData.GetError">
+            <summary>
+            Get the error.
+            </summary>
+            <returns>Error Code</returns>
+        </member>
+        <member name="P:Omrlib.Communication.ModbusInfo.SendReceiveData.Query">
+            <summary>
+            Query
+            </summary>
+        </member>
+        <member name="P:Omrlib.Communication.ModbusInfo.SendReceiveData.Response">
+            <summary>
+            Response
+            </summary>
+        </member>
+        <member name="P:Omrlib.Communication.ModbusInfo.SendReceiveData.IsError">
+            <summary>
+            If an error has occurred, return true.
+            </summary>
+        </member>
+        <member name="T:Omrlib.Communication.Modbus">
+            <summary>
+            Represents a modbus resource.
+            </summary>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.SetProduct(Omrlib.PRODUCT)">
+            <summary>
+            Set the product.
+            </summary>
+            <param name="product">Type of product</param>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.GetProduct">
+            <summary>
+            Get the current product setting.
+            </summary>
+            <returns>product</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.SendReadHolding(Omrlib.Communication.ModbusInfo.SendReceiveData@,System.Byte,System.UInt16,System.UInt16)">
+            <summary>
+            Run the reading from a holding register(s).
+            </summary>
+            <param name="response">Store the information of query and response</param>
+            <param name="slvadd">Slave Address</param>
+            <param name="startaddress">Register address to start reading from</param>
+            <param name="number">Number of registers to be read from the starting register address</param>
+            <returns>Error code</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.SendWriteHolding(Omrlib.Communication.ModbusInfo.SendReceiveData@,System.Byte,System.UInt16,System.UInt16)">
+            <summary>
+            Run the writing to a holding register.
+            </summary>
+            <param name="response">Store the information of query and response</param>
+            <param name="slvadd">Slave Address</param>
+            <param name="address">Register address to be written</param>
+            <param name="value">Value written to the register address</param>
+            <returns>Error code</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.SendDiagnosis(Omrlib.Communication.ModbusInfo.SendReceiveData@,System.Byte,System.UInt16)">
+            <summary>
+            Run the diagnosis.
+            </summary>
+            <param name="response">Store the information of query and response</param>
+            <param name="slvadd">Slave Address</param>
+            <param name="data">Arbitrary data</param>
+            <returns>Error code</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.SendWriteMultipleHolding(Omrlib.Communication.ModbusInfo.SendReceiveData@,System.Byte,System.UInt16,System.Collections.Generic.IEnumerable{System.UInt16})">
+            <summary>
+            Run the writing to multiple holding registers.
+            </summary>
+            <param name="response">Store the information of query and response</param>
+            <param name="slvadd">Slave Address</param>
+            <param name="startaddress">Register address to be written</param>
+            <param name="values">Value written to the register address</param>
+            <returns>Error code</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.PortOpen(System.String,System.Int32,System.IO.Ports.Parity,System.IO.Ports.StopBits)">
+            <summary>
+            open the serial port.
+            </summary>
+            <param name="portnum">Port Number</param>
+            <param name="baudrate">BaudRate</param>
+            <param name="parity">Parity</param>
+            <param name="stopbits">StopBits</param>
+            <returns>Error Code</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.PortClose">
+            <summary>
+            close the serial port.
+            </summary>
+            <returns>If successful, it returns true</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.IsPortOpen">
+            <summary>
+            Gets a value indicating the open or closed status of the Modbus object.
+            </summary>
+            <returns>true if the serial port is open; otherwise, false. The default is false.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.SetReceiveTimeout(System.UInt32)">
+            <summary>
+            Set the receive timeout.
+            </summary>
+            <param name="time">time[ms]</param>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.SetReceiveCompleteTimeout(System.UInt32)">
+            <summary>
+            Set the receive completion timeout.
+            </summary>
+            <param name="time">time[ms]</param>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.MoveAbsolute(System.Byte,System.Int32,System.Int32,System.UInt32,System.UInt32)">
+            <summary>
+            Move to absolute position
+            </summary>
+            <param name="axis">Slave Address</param>
+            <param name="position">Position</param>
+            <param name="velocity">Velocity</param>
+            <param name="speedChangeRate">start/speed change rate</param>
+            <param name="stopRate">stopping rate</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.MoveVelocity(System.Byte,System.Int32,System.UInt32,System.UInt32)">
+            <summary>
+            continuous operation
+            </summary>
+            <param name="axis">Slave Address</param>
+            <param name="velocity">Velocity</param>
+            <param name="speedChangeRate">start/speed change rate</param>
+            <param name="stopRate">stopping rate</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.MoveRelative(System.Byte,System.Int32,System.Int32,System.UInt32,System.UInt32)">
+            <summary>
+            move a specified distance from the actual position
+            </summary>
+            <param name="axis">Slave Address</param>
+            <param name="position">Position</param>
+            <param name="velocity">Velocity</param>
+            <param name="speedChangeRate">start/speed change rate</param>
+            <param name="stopRate">stopping rate</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.Home(System.Byte)">
+            <summary>
+            start the Home operation
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.Stop(System.Byte)">
+            <summary>
+            stop the operation
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.ReadActualPosition(System.Byte,System.Nullable{System.Int32}@)">
+            <summary>
+            get the Feedback position
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <param name="position">Feedback position</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.ReadCommandPosition(System.Byte,System.Nullable{System.Int32}@)">
+            <summary>
+            get the command position
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <param name="position">Command Position</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.ReadTargetPosition(System.Byte,System.Nullable{System.Int32}@)">
+            <summary>
+            get the Target position
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <param name="position">Target Position</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.ReadInternalOutPutIO(System.Byte,Omrlib.Products.AZSeries.AzInternalIO@)">
+            <summary>
+            Read the output I/O (AZ Series)
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <param name="outputio">Internal Output I/O</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.GetAlarm(System.Byte,System.Int32@)">
+            <summary>
+            Current Alarm
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <param name="alarm">Current alarm</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.AlarmReset(System.Byte)">
+            <summary>
+            Alarm reset
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.ReadParameter(System.Byte,System.UInt16,System.Int32@)">
+            <summary>
+            Read the parameter.(32bit value)
+            Function code : 0x10 (2 registers)
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <param name="address">Address</param>
+            <param name="val"></param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.WriteParameter(System.Byte,System.UInt16,System.Int32)">
+            <summary>
+            Write the parameter.(32bit value)
+            Function code : 0x10 (2 registers)
+            </summary>
+            <param name="slvAdd">Slave Address</param>
+            <param name="address">Address</param>
+            <param name="value">value</param>
+            <returns><see cref="T:Omrlib.Communication.ModbusInfo.ErrorCode"/> is returned.</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.SerchDllPath(System.String,System.String)">
+            <summary>
+            Adds a directory to the search path used to DLL for the application.
+            </summary>
+            <param name="x86path">directory of dll(32bit)</param>
+            <param name="x64path">directory of dll(64bit)</param>
+            <exception cref="T:System.NotSupportedException">Not support architecture that was detected.</exception>
+            <exception cref="T:System.DllNotFoundException">The exception that is thrown when a DLL specified in a DLL import cannot be found.</exception>
+            <exception cref="T:System.BadImageFormatException">The exception that is thrown when the file image of a dynamic link library (DLL) or an executable program is invalid.</exception>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.GetArchitecture">
+            <summary>
+            get the architecture
+            </summary>
+            <returns>Architecture</returns>
+        </member>
+        <member name="M:Omrlib.Communication.Modbus.#ctor(Omrlib.PRODUCT)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="product">product</param>
+        </member>
+        <member name="T:Omrlib.Communication.ModbusInfo.NativeStopBits">
+            <summary>
+            Stop Bits
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.NativeStopBits.One">
+            <summary>
+            One
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.NativeStopBits.OnePointFive">
+            <summary>
+            OnePointFive
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.NativeStopBits.Two">
+            <summary>
+            Two
+            </summary>
+        </member>
+        <member name="T:Omrlib.Products.AZSeries.AzInternalIO">
+            <summary>
+            Out put I/O
+            </summary>
+        </member>
+        <member name="F:Omrlib.Products.AZSeries.AzInternalIO.addr_0x0178">
+            <summary>
+            Value of register address (0x0178)
+            </summary>
+        </member>
+        <member name="F:Omrlib.Products.AZSeries.AzInternalIO.addr_0x0179">
+            <summary>
+            Value of register address (0x0179)
+            </summary>
+        </member>
+        <member name="F:Omrlib.Products.AZSeries.AzInternalIO.addr_0x017A">
+            <summary>
+            Value of register address (0x017A)
+            </summary>
+        </member>
+        <member name="F:Omrlib.Products.AZSeries.AzInternalIO.addr_0x017B">
+            <summary>
+            Value of register address (0x017B)
+            </summary>
+        </member>
+        <member name="F:Omrlib.Products.AZSeries.AzInternalIO.addr_0x017C">
+            <summary>
+            Value of register address (0x017C)
+            </summary>
+        </member>
+        <member name="F:Omrlib.Products.AZSeries.AzInternalIO.addr_0x017D">
+            <summary>
+            Value of register address (0x017D)
+            </summary>
+        </member>
+        <member name="F:Omrlib.Products.AZSeries.AzInternalIO.addr_0x017E">
+            <summary>
+            Value of register address (0x017E)
+            </summary>
+        </member>
+        <member name="F:Omrlib.Products.AZSeries.AzInternalIO.addr_0x017F">
+            <summary>
+            Value of register address (0x017F)
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.MAREA">
+            <summary>
+            Output when the motor is within the area specified by each operation data.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.TIM">
+            <summary>
+            Output once every 7.2° rotation of the motor output shaft based on command position.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.RND_ZERO">
+            <summary>
+            Output if the motor is in the origin which is on the wrap coordinates when the warp function is enabled.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.ZSG">
+            <summary>
+            Turns ON every one round based on the feedback position.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.RV_SLS">
+            <summary>
+            Output when reached to the software limit in CCW direction.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.FW_SLS">
+            <summary>
+            Output when reached to the software limit in CW direction.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.RND_OVF">
+            <summary>
+            The output is inverted when exceeding the wrap setting range.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.ORGN_STLD">
+            <summary>
+            Output if mechanical home which is for the product is set at the time of shipping.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.PRST_STLD">
+            <summary>
+            Output when mechanical home positions set.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.PRST_DIS">
+            <summary>
+            Turns ON when the PRESET input is needed again after
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.ELPRST_MON">
+            <summary>
+            Output when electrical home coordinate is enabled.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.ABSPEN">
+            <summary>
+            Output when the coordinate is determined
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.HOME_END">
+            <summary>
+            Output when the high speed return-tohome operation or return-to-home operation completed, or when the position preset is executed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AUTO_CD">
+            <summary>
+            Output when the auto current cutback function is actuated.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.CRNT">
+            <summary>
+            Output when the motor is excited.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.VA">
+            <summary>
+            Output when the operating speed reached to the target speed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.TLC">
+            <summary>
+            Output when the output torque reached to the upper limitation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.IN_POS">
+            <summary>
+            Output when the positioning operation is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.ETO_MON">
+            <summary>
+            Output when the ETO condition is present.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.SYS_BSY">
+            <summary>
+            Output when the driver is in internal processing status.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO">
+            <summary>
+            Output the information of the driver.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.MOVE">
+            <summary>
+            Output when the motor is in operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.PLS_RDY">
+            <summary>
+            Output when the pulse input is enabled.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.READY">
+            <summary>
+            Output when the driver is ready to operate.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.SYS_RDY">
+            <summary>
+            Output when the control power is turned on.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.ALM_B">
+            <summary>
+            Output the alarm of the driver.(normally close)
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.ALM_A">
+            <summary>
+            Output the alarm of the driver.(normally open)
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.CONST_OFF">
+            <summary>
+            Not output.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.USR_OUT1">
+            <summary>
+            Output the logical conjunction or disjunction of 2 types of output signals.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.USR_OUT0">
+            <summary>
+            Output the logical conjunction or disjunction of 2 types of output signals.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.PLS_OUTR">
+            <summary>
+            Output when the pulse request function is activated.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.MON_OUT">
+            <summary>
+            Output the information corresponding to the I/O position output function.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.HWTOIN_MON">
+            <summary>
+            Output when either one of the HWTO1 and HWTO2 turned OFF.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.EDM">
+            <summary>
+            Output when both the HWTO1 and 2 inputs are OFF.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.RG">
+            <summary>
+            Output when the product is in regenerative condition.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.MBC">
+            <summary>
+            Output when electromagnetic brake is locked.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.MPS">
+            <summary>
+            Output when the main power is turned ON.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AREA7">
+            <summary>
+            Output when the motor is within the AREA.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AREA6">
+            <summary>
+            Output when the motor is within the AREA.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AREA5">
+            <summary>
+            Output when the motor is within the AREA.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AREA4">
+            <summary>
+            Output when the motor is within the AREA.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AREA3">
+            <summary>
+            Output when the motor is within the AREA.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AREA2">
+            <summary>
+            Output when the motor is within the AREA.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AREA1">
+            <summary>
+            Output when the motor is within the AREA.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.AREA0">
+            <summary>
+            Output when the motor is within the AREA.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.D_END7">
+            <summary>
+            Output when the specified operation data is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.D_END6">
+            <summary>
+            Output when the specified operation data is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.D_END5">
+            <summary>
+            Output when the specified operation data is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.D_END4">
+            <summary>
+            Output when the specified operation data is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.D_END3">
+            <summary>
+            Output when the specified operation data is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.D_END2">
+            <summary>
+            Output when the specified operation data is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.D_END1">
+            <summary>
+            Output when the specified operation data is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.D_END0">
+            <summary>
+            Output when the specified operation data is completed.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_ACT7">
+            <summary>
+            Output the conditions of the M0 to M7 inputs corresponding to the current operation No. during operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_ACT6">
+            <summary>
+            Output the conditions of the M0 to M7 inputs corresponding to the current operation No. during operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_ACT5">
+            <summary>
+            Output the conditions of the M0 to M7 inputs corresponding to the current operation No. during operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_ACT4">
+            <summary>
+            Output the conditions of the M0 to M7 inputs corresponding to the current operation No. during operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_ACT3">
+            <summary>
+            Output the conditions of the M0 to M7 inputs corresponding to the current operation No. during operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_ACT2">
+            <summary>
+            Output the conditions of the M0 to M7 inputs corresponding to the current operation No. during operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_ACT1">
+            <summary>
+            Output the conditions of the M0 to M7 inputs corresponding to the current operation No. during operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_ACT0">
+            <summary>
+            Output the conditions of the M0 to M7 inputs corresponding to the current operation No. during operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.M_CHG">
+            <summary>
+            The output inverts when operation data No. is transited.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.DCMD_FULL">
+            <summary>
+            Output when data is written in the buffer area of the direct data operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.DCMD_RDY">
+            <summary>
+            Output when the direct data operation is ready.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.PLS_LOST">
+            <summary>
+            Output if pulse is input when the pulse input function is disabled.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.NEXT_LAT">
+            <summary>
+            Output when the operation was transited by the NEXT input.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.JUMP1_LAT">
+            <summary>
+            Output when high event trigger is detected
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.JUMP0_LAT">
+            <summary>
+            Output when low event trigger is detected
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.DELAY_BSY">
+            <summary>
+            Output when the driver is in stop waiting condition (delay, dwell).
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.SEQ_BSY">
+            <summary>
+            Output during the stored data operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.PAUSE_BSY">
+            <summary>
+            Output at pause status.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.OPE_BSY">
+            <summary>
+            Output when the driver is in internal processing status.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.SPD_LMTD">
+            <summary>
+            Output when the speed is limited.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.CRNT_LMTD">
+            <summary>
+            Output when the current is limited.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_RBT">
+            <summary>
+            Reboot was requested.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_CFG">
+            <summary>
+            Configuration was requested.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_IOTEST">
+            <summary>
+            <list type="bullet">
+            <item>
+            <description>“I/O test” of the MEXE02 has been performed.</description>
+            </item>
+            <item>
+            <description>Configuration was executed.</description>
+            </item>
+            </list>
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_DSLMTD">
+            <summary>
+            <list type="bullet">
+            <item>
+            <description>“Teaching remote operation“ of the MEXE02 was activated.</description>
+            </item>
+            <item>
+            <description>Configuration was executed.</description>
+            </item>
+            </list>
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_ODO">
+            <summary>
+            Odometer of the motor exceeded the value set in the “Odometer information (INFO-ODO)” parameter.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_TRIP">
+            <summary>
+            Tripmeter of the motor exceeded the value set in the “Tripmeter information (INFO-TRIP)” parameter.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_CULD1">
+            <summary>
+            Cumulative load exceeded the value set in the “Cumulative load information (INFO-CULD1)” parameter.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_CULD0">
+            <summary>
+            Cumulative load exceeded the value set in the “Cumulative load information (INFO-CULD0)” parameter.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_RV_OT">
+            <summary>
+            Negative software limit was detected, or either one of the RV-LS input and RV-BLK input turned ON.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_FW_OT">
+            <summary>
+            Positive software limit was detected, or either one of the FW-LS input and FWBLK input turned ON.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_NET_E">
+            <summary>
+            RS-485 communication error was detected.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_RND_E">
+            <summary>
+            The resolution and "wrap setting range" parameter was inconsistent.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_EGR_E">
+            <summary>
+            Resolution set in the “electronic gear” parameter was out of specification.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_PR_REQ">
+            <summary>
+            Preset has been executed by position preset or return-to-home operation.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_ZHOME">
+            <summary>
+            Turn on the ZHOME input without the setting the coordinate(ABSPEN output is OFF)
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_START">
+            <summary>
+            <list type="bullet">
+            <item>
+            <description>Start input of prohibited direction has been turned ON.</description>
+            </item>
+            <item>
+            <description>When the operation cannot be executed, start signal has been turned ON. Example) the READY output is OFF</description>
+            </item>
+            </list>
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_SPD">
+            <summary>
+            The detected motor speed exceeded the value set in the “speed information” parameter.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_OLTIME">
+            <summary>
+            A load exceeding the maximum torque was applied for the time set in parameter for the overload time information or longer.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_UVOLT">
+            <summary>
+            <list type="bullet">
+            <item>
+            <description>The power supply voltage dropped from the value set in the parameter for undervoltage.</description>
+            </item>
+            <item>
+            <description>The main power was cut off momentarily or the voltage became low.</description>
+            </item>
+            </list>
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_OVOLT">
+            <summary>
+            <list type="bullet">
+            <item>
+            <description>The voltage of the power supply exceeded the value set in the "over voltage information" parameter.</description>
+            </item>
+            <item>
+            <description>A large inertial load was stopped abruptly or vertical operation was performed.</description>
+            </item>
+            </list>
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_MTRTMP">
+            <summary>
+            Detected encoder temperature exceeded the value set in the “motor temperature information” parameter.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_DRVTMP">
+            <summary>
+            Driver internal temperature exceeded the value set in the “driver temperature information” parameter.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_POSERR">
+            <summary>
+            Position deviation between the command position and feedback position exceeds the value set in the “overflow rotation information”.
+            </summary>
+        </member>
+        <member name="P:Omrlib.Products.AZSeries.AzInternalIO.INFO_USRIO">
+            <summary>
+            The I/O set in the “INFO-B0 output selection” parameter turns ON.
+            </summary>
+        </member>
+        <member name="T:Omrlib.Communication.ModbusInfo.ErrorCode">
+            <summary>
+            Error Code.
+            Each function of the return value.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE">
+            <summary>
+            Error is not.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_UNKNOWN">
+            <summary>
+            Undefined error.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_FRAMELENGTH">
+            <summary>
+            Frame length is abnormal.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_DIFFERENT_SLAVEADDRESS">
+            <summary>
+            Slave address is different.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_UNKNOWN_FUNCTIONCODE">
+            <summary>
+            Unknown Function code.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_CRC">
+            <summary>
+            Anomaly of the CRC.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_RESPONSEFRAME">
+            <summary>
+            Response frame is abnormal.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_TIMEOUT_SEND">
+            <summary>
+            Time-out of the transmission occurs.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_TIMEOUT_RECEIVE">
+            <summary>
+            Time-out of the reception occurs. 
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_FAIL_INITSERIALTHREAD">
+            <summary>
+            An error occurred when initializing the thread of serial communication.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_OCCUREXCEPTION_SERIAL">
+            <summary>
+            An error occurred when processing of serial communication.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_SERIALPORTNAME">
+            <summary>
+            Port name is abnormal.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_PORTHANDLE">
+            <summary>
+            Failed to get the port handle.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_COMMUNICATIONBUFFER">
+            <summary>
+            Failed to set send and receive buffer.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_CLEARCOMMUNICATIONBUFFER">
+            <summary>
+            Failed to clear send and receive buffer.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_SETSERIALSTATE">
+            <summary>
+            Failed to set the status.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_SETSERIALTIMEOUT">
+            <summary>
+            Failed to set the time-out.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_OCCUREXCEPTION_SERIALINIT">
+            <summary>
+            An error occurred when initialize the serial communication.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_SERIALPORTNOTOPEN">
+            <summary>
+            Port is not open.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_RECEIVETHREAD">
+            <summary>
+            An error occurred when running the thread of the reception.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_FAIL_GETSEMAPHORE">
+            <summary>
+            Failed to get the semaphore.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NOT_OPERATION">
+            <summary>
+            The driver side is not in operation possible state.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_INPROGRESS_COMMAND">
+            <summary>
+            Other command is running.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_INPROGRESS_SERIALPORT">
+            <summary>
+            During communication.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_UNKNOWN_EXCEPTIONCODE">
+            <summary>
+            Unknown Exception Code
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_BROADCAST">
+            <summary>
+            Can not be broadcast.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NOTEXECUTE_PORTOPEN">
+            <summary>
+            Can not execute command when port is open.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_FRAMELENGTH_RH">
+            <summary>
+            Frame length is abnormal.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_FRAMELENGTH_WS">
+            <summary>
+            Frame length is abnormal.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_FRAMELENGTH_DG">
+            <summary>
+            Frame length is abnormal.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_FRAMELENGTH_WM">
+            <summary>
+            Frame length is abnormal.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_FRAMELENGTH_EX">
+            <summary>
+            Frame length is abnormal.
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.DRIVER_EXCEPTION_INVALIDFUNCTION">
+            <summary>
+            Exception response : Exception Code = 0x01
+            <list type="bullet">
+            <item><description>The process could not be executed because the function code was invalid.</description></item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.DRIVER_EXCEPTION_INVALIDDATAADDR">
+            <summary>
+            Exception response : Exception Code = 0x02
+            <list type="bullet">
+            <item><description>The process could not be executed because the data address was invalid.</description></item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.DRIVER_EXCEPTION_INVALIDDATA">
+            <summary>
+            Exception response : Exception Code = 0x03
+            <list type="bullet">
+            <item><description>The process could not be executed because the data was invalid.</description></item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.ErrorCode.DRIVER_EXCEPTION_SLAVEERROR">
+            <summary>
+            Exception response : Exception Code = 0x04
+            <list type="bullet">
+            <item><description>Communication with user I/F is in progress.</description></item>
+            <item><description>Non-volatile memory processing is in progress.</description></item>
+            <item><description>Outside the parameter setting range.</description></item>
+            <item><description>Command execute disable.</description></item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:Omrlib.Communication.ModbusInfo.NativeMethod.DllName">
+            <summary>
+            *.dll of name
+            </summary>
+        </member>
+        <member name="T:Omrlib.PRODUCT">
+            <summary>
+            Supported products by Modbus Library.
+            </summary>
+        </member>
+        <member name="F:Omrlib.PRODUCT.UnKnown">
+            <summary>
+            Unknown product
+            </summary>
+        </member>
+        <member name="F:Omrlib.PRODUCT.AZ">
+            <summary>
+            AZ series
+            </summary>
+        </member>
+        <member name="F:Omrlib.PRODUCT.AR">
+            <summary>
+            AR series
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,5 +1,4 @@
-﻿using Modbus.Device;
-using PCI.PS400;
+﻿using PCI.PS400;
 using System;
 using System.Diagnostics;
 using System.IO.Ports;
@@ -13,7 +12,7 @@ namespace yiyi.MotionDefine
 
         #region 共用變數宣告
 
-        static ModbusSerialMaster AZMaster;
+        static Omrlib.Communication.Modbus AZMaster;
         //private byte slaveID = 1;       //站別
         private static SerialPort AZPort = new SerialPort();             //宣告AZ通信埠
 
