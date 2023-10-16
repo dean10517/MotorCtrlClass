@@ -337,14 +337,16 @@ namespace yiyi.MotionDefine
                     AZ_Init();
 
                     //2.先關閉再開啟
-                    if (AZPort.IsOpen)
-                        AZPort.Close();
+                    //if (AZPort.IsOpen)
+                    //    AZPort.Close();
 
                     //開啟通信埠
-                    AZPort.Open();
+                    //AZPort.Open();
 
-                    AZMaster = ModbusSerialMaster.CreateAscii(AZPort);                    
-                    AZMaster.Transport.ReadTimeout = 500;
+                    AZMaster = new Omrlib.Communication.Modbus(Omrlib.PRODUCT.AZ);
+                    var res = AZMaster.PortOpen(AZPort.PortName, AZPort.BaudRate, AZPort.Parity, AZPort.StopBits);
+                    nErrCode = res == Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE ? (short)0 : (short)1;
+                    //AZMaster.Transport.ReadTimeout = 500;
                 }
                 return nErrCode;
             }
@@ -447,7 +449,8 @@ namespace yiyi.MotionDefine
             String strErrMsg;
             try
             {
-                AZPort.Close();
+                //AZPort.Close();
+                nErrCode = AZMaster.PortClose() ? (short)0 : (short)1;
                 return nErrCode;
             }
             catch (Exception ex)
@@ -703,7 +706,7 @@ namespace yiyi.MotionDefine
                 goto Initial_Error;
             }
 
-            Initial_Error:
+        Initial_Error:
             ;
             return nErrCode;
         }
@@ -1700,7 +1703,8 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                AZMaster.WriteSingleRegister(slaveID, 0x201E, 9); //9: Emergency stop
+                //AZMaster.WriteSingleRegister(slaveID, 0x201E, 9); //9: Emergency stop
+                //AZMaster.Stop
 
 
                 //sendFlag = false;
@@ -2198,7 +2202,7 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                AZMaster.WriteSingleRegister(slaveID, 0x2011, 0);  //0: Servo is ON; 1: Servo is OFF
+                //AZMaster.WriteSingleRegister(slaveID, 0x2011, 0);  //0: Servo is ON; 1: Servo is OFF
 
                 sendFlag = false;
 
@@ -2232,7 +2236,7 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                AZMaster.WriteSingleRegister(slaveID, 0x2011, 1);  //0: Servo is ON; 1: Servo is OFF
+                //AZMaster.WriteSingleRegister(slaveID, 0x2011, 1);  //0: Servo is ON; 1: Servo is OFF
 
                 sendFlag = false;
 
@@ -2324,14 +2328,14 @@ namespace yiyi.MotionDefine
                                 data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
                                 data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
                                 data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                                //AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
 
                                 //位置設定
                                 data = new ushort[2];
                                 data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
                                 data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                AZMaster.WriteMultipleRegisters(slaveID, 0x2002, data); //設定位置
-                                AZMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //執行
+                                //AZMaster.WriteMultipleRegisters(slaveID, 0x2002, data); //設定位置
+                                //AZMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //執行
 
 
                                 sendFlag = false;
@@ -2431,14 +2435,14 @@ namespace yiyi.MotionDefine
                                 data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
                                 data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
                                 data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                                //AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
 
                                 //位置設定
                                 data = new ushort[2];
                                 data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
                                 data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                AZMaster.WriteMultipleRegisters(slaveID, 0x2002, data); //設定位置
-                                AZMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //執行
+                                //AZMaster.WriteMultipleRegisters(slaveID, 0x2002, data); //設定位置
+                                //AZMaster.WriteSingleRegister(slaveID, 0x201E, 1);       //執行
 
                                 sendFlag = false;
                                 AZ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = movePluse;
@@ -2496,7 +2500,7 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                AZMaster.WriteSingleRegister(slaveID, 0x201E, 3); //3: Home return
+                //AZMaster.WriteSingleRegister(slaveID, 0x201E, 3); //3: Home return
                 mStatus[slaveID].HEND = true;
 
                 sendFlag = false;
@@ -2603,14 +2607,14 @@ namespace yiyi.MotionDefine
                                 data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
                                 data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
                                 data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                                //AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
 
                                 //位置設定
                                 data = new ushort[2];
                                 data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
                                 data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                AZMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
-                                AZMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
+                                //AZMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
+                                //AZMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
 
                                 AZ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
                                 sendFlag = false;
@@ -2708,7 +2712,7 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
-                                ushort[] data;                               
+                                ushort[] data;
 
                                 //速度設定
                                 data = new ushort[4];
@@ -2716,14 +2720,14 @@ namespace yiyi.MotionDefine
                                 data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
                                 data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
                                 data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                                AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                                //AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
 
                                 //位置設定
                                 data = new ushort[2];
                                 data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
                                 data[1] = (ushort)(Target_Pos & 0xFFFF);
-                                AZMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
-                                AZMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
+                                //AZMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
+                                //AZMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
 
                                 sendFlag = false;
                                 AZ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = cmdPls;
@@ -2828,14 +2832,14 @@ namespace yiyi.MotionDefine
                             data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
                             data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
                             data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                            AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                            //AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
 
                             //位置設定
                             data = new ushort[2];
                             data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
                             data[1] = (ushort)(Target_Pos & 0xFFFF);
-                            AZMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
-                            AZMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
+                            //AZMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
+                            //AZMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
 
                             sendFlag = false;
                             ngFlag_AZ_Manual_Rel_Par_GO = false;
@@ -2939,14 +2943,14 @@ namespace yiyi.MotionDefine
                             data[1] = (ushort)(Speed & 0xFFFF);         //，此值可從轉速(RPM) / 60 * Encoder 解析度。                                                                      
                             data[2] = Acc_Speed;  //0804H AccelTim 加速時間設定(msec)馬達加速時間設定。 1~30000msec
                             data[3] = Dec_Speed;  //0805H DecelTime 減速時間設定(msec) 馬達減速時間設定。 1~30000
-                            AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
+                            //AZMaster.WriteMultipleRegisters(slaveID, 0x0802, data);  //速度                                                                
 
                             //位置設定
                             data = new ushort[2];
                             data[0] = (ushort)((Target_Pos >> 16) & 0xFFFF);
                             data[1] = (ushort)(Target_Pos & 0xFFFF);
-                            AZMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
-                            AZMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
+                            //AZMaster.WriteMultipleRegisters(slaveID, 0x2000, data); //設定位置
+                            //AZMaster.WriteSingleRegister(slaveID, 0x201E, 0);       //執行
 
                             sendFlag = false;
                             ngFlag_AZ_Manual_Rel_GO = false;
@@ -3030,12 +3034,12 @@ namespace yiyi.MotionDefine
                 if (Mode == 1)
                 {
                     //XCMaster.WriteSingleCoil(slaveID, 0x042C, true);     //立即停止
-                    AZMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop                                                                          
+                    //AZMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop                                                                          
                 }
                 else
                 {
                     //XCMaster.WriteSingleCoil(slaveID, 0x042C, true);     //減速停止
-                    AZMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop
+                    //AZMaster.WriteSingleRegister(slaveID, 0x201E, 8);     //8: Decelerates to stop
                 }
                 //sendFlag = false;
                 returnStatus = 0;
@@ -3108,7 +3112,7 @@ namespace yiyi.MotionDefine
         public static int Read_Motor_Status(Byte cardNum, UInt16 AxisNum)
         {
             int returnStatus = -3; //異常碼 -3            
-            ushort[] data,tmp;
+            ushort[] data, tmp = null;
 
             try
             {
@@ -3127,7 +3131,7 @@ namespace yiyi.MotionDefine
                 AZ_Get_Enccounter2(cardNum, AxisNum, ref bData);
 
                 //2.讀取驅動軸狀態1005(AlarmStatus)、100D(ErrorStatus)、1001(InpStatus)、1000(ActionStatus)
-                tmp = AZMaster.ReadHoldingRegisters(slaveID, 0x1000, 0x0D + 1);
+                //tmp = AZMaster.ReadHoldingRegisters(slaveID, 0x1000, 0x0D + 1);
 
                 //data[0] : AlarmStatus
                 //data[1] : ErrorStatus
@@ -3144,15 +3148,15 @@ namespace yiyi.MotionDefine
                     mStatus[slaveID].ALM = true;
                     if (!Read_Motor_Status_Ng[slaveID])
                     {
-                        MotionClass.WriteEventLog(slaveID.ToString() + "1005--->" + data[0].ToString());                                                
+                        MotionClass.WriteEventLog(slaveID.ToString() + "1005--->" + data[0].ToString());
                         Read_Motor_Status_Ng[slaveID] = true;
                     }
                 }
-                else if (data[1] != 0 )
+                else if (data[1] != 0)
                 {
                     mStatus[slaveID].ALM = true;
                     if (!Read_Motor_Status_Ng[slaveID])
-                    {                        
+                    {
                         MotionClass.WriteEventLog(slaveID.ToString() + "100D--->" + data[1].ToString());
                         Read_Motor_Status_Ng[slaveID] = true;
                     }
@@ -3209,7 +3213,7 @@ namespace yiyi.MotionDefine
             byte slaveID;
             try
             {
-                ushort[] data;
+                ushort[] data = null;
                 slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 if (MotionClass.MotionDefine.simulateFlag && MotionClass.MotionDefine.simulateNoModbusFlag)
@@ -3221,7 +3225,7 @@ namespace yiyi.MotionDefine
                 else
                 {
                     //目前馬達位置 
-                    data = AZMaster.ReadHoldingRegisters(slaveID, 0x100A, 2);  //Encoder position
+                    //data = AZMaster.ReadHoldingRegisters(slaveID, 0x100A, 2);  //Encoder position
                     bData = ((data[0] << 16) + data[1]);
 
                     mStatus[slaveID].Position = bData;
@@ -3260,7 +3264,7 @@ namespace yiyi.MotionDefine
                     sendFlag = true;
 
                     byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
-                    AZMaster.WriteSingleRegister(slaveID, 0x201E, 6);  //6: Alarm reset
+                    //AZMaster.WriteSingleRegister(slaveID, 0x201E, 6);  //6: Alarm reset
 
                     sendFlag = false;
                     returnStatus = ErrCode.SUCCESS_NO_ERROR;
