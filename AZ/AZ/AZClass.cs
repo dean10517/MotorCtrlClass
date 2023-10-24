@@ -2410,7 +2410,7 @@ namespace yiyi.MotionDefine
                                 ushort Dec_Speed = (ushort)D;
 
                                 var res = AZMaster.MoveAbsolute(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
-                                if(res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
+                                if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
                                     throw new InvalidOperationException(res.ToString());
 
                                 sendFlag = false;
@@ -2470,7 +2470,7 @@ namespace yiyi.MotionDefine
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
                 var res = AZMaster.Home(slaveID);
-                if(res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
+                if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
                     throw new InvalidOperationException(res.ToString());
 
                 mStatus[slaveID].HEND = true;
@@ -2916,36 +2916,54 @@ namespace yiyi.MotionDefine
         #region 連續運動
         public static int AZ_Continue_GO(Byte cardNum, UInt16 AxisNum, uint Tar_Speed, byte bDir)
         {
+            byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
             int returnStatus = -99; //異常碼 -99
             ushort bDone = 0;
             //ushort bStopStatus = 0;
             //int OffsetPls = 0;
             //int movePluse = 0;
 
-            returnStatus = AZ_Motion_Done(cardNum, AxisNum, ref bDone);
-            //檢查軸停止
-            if (returnStatus == ErrCode.SUCCESS_NO_ERROR && bDone == Param.MOTION_DONE)
+            try
             {
-                uint SV = AZ_Cfg[cardNum].BasicFeatures[AxisNum].SV;
-                //uint V = AZ_Cfg[cardNum].BasicFeatures[AxisNum].V;
-                float A = AZ_Cfg[cardNum].BasicFeatures[AxisNum].A;
-                //uint D = AZ_Cfg[cardNum].BasicFeatures[AxisNum].D;
-
-                if (AZ_Cfg[cardNum].BasicFeatures[AxisNum].AccMode == 0)//T 曲線
-                    //returnStatus = Functions.AZ_velocity_move(cardNum, AXIS_ID[AxisNum], SV, Tar_Speed, A, bDir);
-                    bDone = 0;
-                else
+                returnStatus = AZ_Motion_Done(cardNum, AxisNum, ref bDone);
+                //檢查軸停止
+                if (returnStatus == ErrCode.SUCCESS_NO_ERROR && bDone == Param.MOTION_DONE)
                 {
-                    //uint SA = AZ_Cfg[cardNum].BasicFeatures[AxisNum].SA;
-                    //uint SD = AZ_Cfg[cardNum].BasicFeatures[AxisNum].SD;
-                    // returnStatus = Functions.AZ_velocity_move(cardNum, AXIS_ID[AxisNum], SV, Tar_Speed, A, bDir);
+                    float A = AZ_Cfg[cardNum].BasicFeatures[AxisNum].A;
+                    float D = AZ_Cfg[cardNum].BasicFeatures[AxisNum].D;
+                    int speed = bDir == 0 ? (int)Tar_Speed : (int)(Tar_Speed * -1);
+                    var res = AZMaster.MoveVelocity(slaveID, speed, (uint)A, (uint)D);
+                    if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
+                        throw new InvalidOperationException(res.ToString());
+
+                    //uint SV = AZ_Cfg[cardNum].BasicFeatures[AxisNum].SV;
+                    ////uint V = AZ_Cfg[cardNum].BasicFeatures[AxisNum].V;
+
+                    //if (AZ_Cfg[cardNum].BasicFeatures[AxisNum].AccMode == 0)//T 曲線
+                    //    //returnStatus = Functions.AZ_velocity_move(cardNum, AXIS_ID[AxisNum], SV, Tar_Speed, A, bDir);
+                    //    bDone = 0;
+                    //else
+                    //{
+                    //    //uint SA = AZ_Cfg[cardNum].BasicFeatures[AxisNum].SA;
+                    //    //uint SD = AZ_Cfg[cardNum].BasicFeatures[AxisNum].SD;
+                    //    // returnStatus = Functions.AZ_velocity_move(cardNum, AXIS_ID[AxisNum], SV, Tar_Speed, A, bDir);                    
+                    //}
                 }
+                return returnStatus;
             }
-            return returnStatus;
+            catch (Exception ex)
+            {
+                sendFlag = false;
+
+                string strErrMsg = string.Format("AZ_Continue_GO() falied with error code : {0}", ex.Message);
+                MotionClass.WriteEventLog(strErrMsg);
+
+                return returnStatus;
+            }
         }
         #endregion
 
-        #region 軸卡停止-->可以指定停止模式
+        #region 軸卡停止-->目前只有1種停止模式
         public static int AZ_Stop(Byte cardNum, UInt16 AxisNum, ushort Mode)
         {
             int returnStatus = -3; //異常碼 -3
@@ -3017,7 +3035,7 @@ namespace yiyi.MotionDefine
                     //指定馬達NO
                     //sendFlag = false;
 
-                    
+
 
                     AZ_Cfg[cardNum].BasicFeatures[AxisNum].Pos = 0;
                     AZ_Cfg[cardNum].BasicFeatures[AxisNum].bHomOK = true;
@@ -3069,15 +3087,15 @@ namespace yiyi.MotionDefine
                 if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
                     throw new InvalidOperationException(res.ToString());
 
-                if (alarm != 0) 
+                if (alarm != 0)
                 {
                     mStatus[slaveID].ALM = true;
                     if (!Read_Motor_Status_Ng[slaveID])
                     {
-                        MotionClass.WriteEventLog(slaveID.ToString()+ "Alarm code: " + alarm.ToString());
+                        MotionClass.WriteEventLog(slaveID.ToString() + "Alarm code: " + alarm.ToString());
                         Read_Motor_Status_Ng[slaveID] = true;
                     }
-                }             
+                }
                 else
                 {
                     mStatus[slaveID].ALM = false;

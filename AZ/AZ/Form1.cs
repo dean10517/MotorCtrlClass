@@ -68,9 +68,7 @@ namespace AZ
                 m_nPortNo = byte.Parse(comboBoxPortNo.Text);
                 dwBaud = uint.Parse(comboBaudrate.Text);
 
-                //int a = EziMOTIONPlusRLib.FAS_Connect(m_nPortNo, dwBaud);
-                
-                AZClass.AZ_Setup_Com(new SerialPort("COM" + m_nPortNo.ToString(), (int)dwBaud));
+                AZClass.AZ_Setup_Com(new SerialPort("COM" + m_nPortNo.ToString(), (int)dwBaud, Parity.Even, 8, StopBits.One));
                 AZClass.AZ_Open_Com();
 
 
@@ -90,12 +88,12 @@ namespace AZ
                     comboBoxPortNo.Enabled = false;
                     comboBaudrate.Enabled = false;
 
-                  
+
                 }
             }
             else
             {
-               
+
                 m_bConnected = false;
 
                 buttonConnect.Text = "Connect";
@@ -380,7 +378,7 @@ namespace AZ
         private void buttonMotionTest_Click(object sender, EventArgs e)
         {
             int LRC = 0;
-            int[] LRC_ARR = new int[] {0x01, 0x84, 0x01};
+            int[] LRC_ARR = new int[] { 0x01, 0x84, 0x01 };
             for (int i = 0; i < LRC_ARR.Length; i++)
             {
                 LRC = (LRC + LRC_ARR[i]) & 0xFF;
@@ -400,7 +398,7 @@ namespace AZ
             lPosition = int.Parse(textPosition.Text);
             lVelocity = uint.Parse(textSpeed.Text);
 
-          
+
         }
 
         private void buttonMoveAllABS_Click(object sender, EventArgs e)
@@ -415,7 +413,7 @@ namespace AZ
             lPosition = int.Parse(textPosition.Text);
             lVelocity = uint.Parse(textSpeed.Text);
 
-            
+
         }
 
         private void buttonJogPositive_Click(object sender, EventArgs e)
@@ -437,7 +435,7 @@ namespace AZ
 
             lVelocity = uint.Parse(textBoxJogSpd.Text);
 
-           
+            AZClass.AZ_Continue_GO(1, 0, lVelocity, 0);
         }
 
         private void buttonJogNegative_Click(object sender, EventArgs e)
@@ -459,7 +457,7 @@ namespace AZ
 
             lVelocity = uint.Parse(textBoxJogSpd.Text);
 
-          
+            AZClass.AZ_Continue_GO(1, 0, lVelocity, 1);
         }
 
         private void buttonSpdOverride_Click(object sender, EventArgs e)
@@ -481,7 +479,7 @@ namespace AZ
 
             lVelocity = uint.Parse(textBoxJogSpd.Text);
 
-            
+
         }
 
         private void textBoxAccelTime_TextChanged(object sender, EventArgs e)
@@ -511,11 +509,11 @@ namespace AZ
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            //TLClass.Read_Motor_Status(1, 0);
-            //textBoxDRV.Text = TLClass.mStatus[1].DRV.ToString();
-            //textBoxALM.Text = TLClass.mStatus[1].ALM.ToString();
-            //textBoxHEND.Text = TLClass.mStatus[1].HEND.ToString();
-            //textBoxPOS.Text = TLClass.mStatus[1].Position.ToString();
+            AZClass.Read_Motor_Status(1, 0);
+            textBoxDRV.Text = AZClass.mStatus[1].DRV.ToString();
+            textBoxALM.Text = AZClass.mStatus[1].ALM.ToString();
+            textBoxHEND.Text = AZClass.mStatus[1].HEND.ToString();
+            textBoxPOS.Text = AZClass.mStatus[1].Position.ToString();
         }
 
         private void buttonTabParABSPush_Click(object sender, EventArgs e)
