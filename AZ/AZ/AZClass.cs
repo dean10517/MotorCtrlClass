@@ -2198,7 +2198,15 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                //AZMaster.WriteSingleRegister(slaveID, 0x2011, 0);  //0: Servo is ON; 1: Servo is OFF                
+                // 先讀取目前Remote Input暫存器狀態
+                // 上位 address: 0x7C
+                // 下位 address: 0x7D
+                AZMaster.ReadParameter(slaveID, 0x007C, out int returnVal);
+                //res.Response.
+
+                // 變更0x7D的bit0 (C-ON馬達激磁狀態)為true, 使馬達激磁
+                // (備註：0x7D的Bit0預設值為M0功能, 需以MEXE02軟體更改驅動器設定為C-ON後才可使用)
+                AZMaster.WriteParameter(slaveID, 0x007C, returnVal &= 0xFFBF);
 
                 sendFlag = false;
 
@@ -2232,7 +2240,15 @@ namespace yiyi.MotionDefine
 
                 byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
 
-                //AZMaster.WriteSingleRegister(slaveID, 0x2011, 1);  //0: Servo is ON; 1: Servo is OFF
+                // 先讀取目前Remote Input暫存器狀態
+                // 上位 address: 0x7C
+                // 下位 address: 0x7D
+                AZMaster.ReadParameter(slaveID, 0x007C, out int returnVal);
+                //res.Response.
+
+                // 變更0x7D的bit0 (C-ON馬達激磁狀態)為true, 使馬達激磁
+                // (備註：0x7D的Bit0預設值為M0功能, 需以MEXE02軟體更改驅動器設定為C-ON後才可使用)
+                AZMaster.WriteParameter(slaveID, 0x007C, returnVal |= 0x0040);
 
                 sendFlag = false;
 
@@ -3103,11 +3119,13 @@ namespace yiyi.MotionDefine
                 }
 
 
-                // 3.分解狀態-馬達運轉中 ActionStatus                
-                //if (data[3] == 1)   //0: Stop, 1: Working, 2: Abnormal stop                                    
-                //    mStatus[slaveID].DRV = true;
-                //else
-                //    mStatus[slaveID].DRV = false;
+                // 3.分解狀態-馬達運轉中 ActionStatus
+                // 讀取目前Remote Output暫存器狀態(0x7E為輸出的上位站存器位址)                
+                AZMaster.ReadParameter(slaveID, 0x007E, out int returnVal);
+                if ((returnVal & 0x2000) != 0)   //bit 13 : MOVE                                    
+                    mStatus[slaveID].DRV = true;
+                else
+                    mStatus[slaveID].DRV = false;
 
 
                 //檢查軟体正負極限

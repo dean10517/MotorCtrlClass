@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PCI.PS400;
+using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Windows.Forms;
@@ -498,7 +499,9 @@ namespace AZ
 
         private void buttonHome_Click(object sender, EventArgs e)
         {
-            AZClass.AZ_Home_Start(1, 0);
+            int errCode = AZClass.AZ_Home_Start(1, 0);
+            if (errCode != ErrCode.SUCCESS_NO_ERROR)
+                MessageBox.Show($"[Error] AZClass.AZ_Home_Start, ErrorCode:{errCode}");
             AZClass.AZ_Set_Zero(1, 0);
         }
 

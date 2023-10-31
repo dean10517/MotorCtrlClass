@@ -2,14 +2,7 @@
 
 #### AZ_Servo_ON
 
-> 沒有 servo on 功能，未實作
-
 #### AZ_Servo_OFF
-
-> 沒有 servo Off 功能，未實作<br>
-> 目前有發現手順版說明書有提到 FREE 方式讓馬達無激磁，但要以暫存器方式控制
-
-> 另外 SERVEROFF 後該如何 ON
 
 #### AZ_Home_Start
 
@@ -22,8 +15,6 @@
 #### AZ_Alarm_Clear
 
 #### Read_Motor_Status ->讀取當前位置(POS)、移動狀態(DRV)
-
-> 移動狀態(DRV)尚未實作
 
 #### AZ_Get_Enccounter2 ->讀取當前位置(POS)
 
