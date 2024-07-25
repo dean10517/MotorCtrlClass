@@ -1,5 +1,6 @@
 ﻿using PCI.PS400;
 using System;
+using System.CodeDom;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Threading;
@@ -2054,6 +2055,11 @@ namespace yiyi.MotionDefine
                     bDone = (ushort)Param.MOTION_NIT_DONE;  //1
                     returnStatus = ErrCode.SUCCESS_NO_ERROR;
                 }
+                else if (HoldEnable)  // HoldOn，尚未移動完成
+                {
+                    bDone = (ushort)Param.MOTION_NIT_DONE;  //1
+                    returnStatus = ErrCode.SUCCESS_NO_ERROR;
+                }
                 else  //已停止+是否在定位點判斷
                 {
                     bDone = (ushort)Param.MOTION_DONE;      //0
@@ -2332,6 +2338,12 @@ namespace yiyi.MotionDefine
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
 
+                                // 移動前先將目標位置儲存，供Hold功能使用
+                                LastTargetPos = Target_Pos;
+                                LastSpeed = Speed;
+                                LastAcc = Acc_Speed;
+                                LastDec = Dec_Speed;
+
                                 var res = AZMaster.MoveAbsolute(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
                                 if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
                                     throw new InvalidOperationException(res.ToString());
@@ -2424,6 +2436,12 @@ namespace yiyi.MotionDefine
                                 uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
                                 ushort Dec_Speed = (ushort)D;
+
+                                // 移動前先將目標位置儲存，供Hold功能使用
+                                LastTargetPos = Target_Pos;
+                                LastSpeed = Speed;
+                                LastAcc = Acc_Speed;
+                                LastDec = Dec_Speed;
 
                                 var res = AZMaster.MoveAbsolute(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
                                 if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
@@ -2581,7 +2599,7 @@ namespace yiyi.MotionDefine
 
                                 movePluse = (int)(Tar_Pos * AZ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
-                                int Target_Pos = movePluse;
+                                int Target_Pos = OffsetPls + movePluse;  // 現在位置加上相對移動值即為目標位置
                                 ushort Pos_Band = 1;
                                 uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
@@ -2589,7 +2607,14 @@ namespace yiyi.MotionDefine
 
                                 ushort[] data;
 
-                                var res = AZMaster.MoveRelative(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
+                                // 移動前先將目標位置儲存，供Hold功能使用
+                                LastTargetPos = Target_Pos;
+                                LastSpeed = Speed;
+                                LastAcc = Acc_Speed;
+                                LastDec = Dec_Speed;
+
+                                //var res = AZMaster.MoveRelative(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
+                                var res = AZMaster.MoveAbsolute(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
                                 if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
                                     throw new InvalidOperationException(res.ToString());
 
@@ -2683,7 +2708,7 @@ namespace yiyi.MotionDefine
 
                                 movePluse = (int)(Tar_Par.P * AZ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
-                                int Target_Pos = movePluse;
+                                int Target_Pos = OffsetPls + movePluse;  // 現在位置加上相對移動值即為目標位置
                                 ushort Pos_Band = 1;
                                 uint Speed = V;
                                 ushort Acc_Speed = (ushort)A;
@@ -2691,7 +2716,14 @@ namespace yiyi.MotionDefine
 
                                 ushort[] data;
 
-                                var res = AZMaster.MoveRelative(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
+                                // 移動前先將目標位置儲存，供Hold功能使用
+                                LastTargetPos = Target_Pos;
+                                LastSpeed = Speed;
+                                LastAcc = Acc_Speed;
+                                LastDec = Dec_Speed;
+
+                                //var res = AZMaster.MoveRelative(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
+                                var res = AZMaster.MoveAbsolute(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
                                 if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
                                     throw new InvalidOperationException(res.ToString());
 
@@ -2783,7 +2815,7 @@ namespace yiyi.MotionDefine
                             uint V = Tar_Par.V;
                             movePluse = (int)(Tar_Par.P * AZ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
 
-                            Int32 Target_Pos = (Int32)movePluse;
+                            int Target_Pos = OffsetPls + movePluse;  // 現在位置加上相對移動值即為目標位置
                             //int Target_Pos = movePluse;
                             ushort Pos_Band = 1;
                             uint Speed = V;
@@ -2792,7 +2824,14 @@ namespace yiyi.MotionDefine
 
                             ushort[] data;
 
-                            var res = AZMaster.MoveRelative(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
+                            // 移動前先將目標位置儲存，供Hold功能使用
+                            LastTargetPos = Target_Pos;
+                            LastSpeed = Speed;
+                            LastAcc = Acc_Speed;
+                            LastDec = Dec_Speed;
+
+                            //var res = AZMaster.MoveRelative(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
+                            var res = AZMaster.MoveAbsolute(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
                             if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
                                 throw new InvalidOperationException(res.ToString());
 
@@ -2881,7 +2920,7 @@ namespace yiyi.MotionDefine
                             float D = AZ_Cfg[cardNum].BasicFeatures[AxisNum].D;
                             //
                             movePluse = (int)(Tar_Pos * AZ_Cfg[cardNum].AxisConfig[AxisNum].Scale);
-                            Int32 Target_Pos = (Int32)movePluse;
+                            int Target_Pos = OffsetPls + movePluse;  // 現在位置加上相對移動值即為目標位置
 
                             //XC參數指令區
                             //int Target_Pos = movePluse;
@@ -2892,7 +2931,14 @@ namespace yiyi.MotionDefine
 
                             ushort[] data;
 
-                            var res = AZMaster.MoveRelative(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
+                            // 移動前先將目標位置儲存，供Hold功能使用
+                            LastTargetPos = Target_Pos;
+                            LastSpeed = Speed;
+                            LastAcc = Acc_Speed;
+                            LastDec = Dec_Speed;
+
+                            //var res = AZMaster.MoveRelative(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
+                            var res = AZMaster.MoveAbsolute(slaveID, Target_Pos, (int)Speed, Acc_Speed, Dec_Speed);
                             if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
                                 throw new InvalidOperationException(res.ToString());
 
@@ -3006,6 +3052,58 @@ namespace yiyi.MotionDefine
                         throw new InvalidOperationException(res.ToString());
                 }
                 //sendFlag = false;
+                returnStatus = 0;
+                return returnStatus;
+            }
+            catch (Exception ex)
+            {
+                // sendFlag = false;
+                string strErrMsg = string.Format("AZ_Stop() falied with error code : {0}", ex.Message);
+                MotionClass.WriteEventLog(strErrMsg);
+
+                return returnStatus;
+            }
+        }
+        #endregion
+
+        #region 軸卡運動暫停       
+        static int LastTargetPos = 0;
+        static uint LastSpeed = 0;
+        static uint LastAcc = 0;
+        static uint LastDec = 0;
+        static bool HoldEnable = false;
+        public static int AZ_HoldOn(Byte cardNum, UInt16 AxisNum, bool holdEnable)
+        {
+            int returnStatus = -3; //異常碼 -3
+            try
+            {
+                //if (sendFlag)
+                //    return -98;//WAIT
+                //else
+                //    sendFlag = true;
+
+                byte slaveID = (byte)((cardNum - 1) * 4 + AxisNum + 1);
+                //指定馬達NO=1              
+
+                if (holdEnable)  // 啟用hold
+                {
+                    // 設定holdOn旗標
+                    HoldEnable = holdEnable;
+                    
+                    // 停止
+                    AZ_Stop(cardNum, slaveID, 0);
+                }
+                else  // 解除hold，繼續移動至之前的目標位置
+                {
+                    // 移動
+                    var res = AZMaster.MoveAbsolute(slaveID, LastTargetPos, (int)LastSpeed, LastAcc, LastSpeed);
+                    if (res != Omrlib.Communication.ModbusInfo.ErrorCode.ERROR_NONE)
+                        throw new InvalidOperationException(res.ToString());
+
+                    // 設定holdOn旗標
+                    HoldEnable = holdEnable;
+                }
+
                 returnStatus = 0;
                 return returnStatus;
             }
